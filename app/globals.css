@@ -120,3 +120,334 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+
+/* Color Palette Classes */
+.bg-sukhadia-orange { @apply bg-orange-400; }
+.bg-sukhadia-warm { @apply bg-orange-300; }
+.bg-sukhadia-light { @apply bg-orange-100; }
+.bg-sukhadia-purple { @apply bg-purple-600; }
+.bg-sukhadia-pink { @apply bg-pink-500; }
+.text-sukhadia-dark { @apply text-gray-800; }
+
+/* Header Navigation */
+.nav-header {
+  @apply bg-gradient-to-r from-orange-300 to-orange-400 px-4 py-3;
+}
+
+.nav-menu {
+  @apply flex items-center justify-center space-x-8 text-gray-800 font-medium;
+}
+
+.nav-item {
+  @apply hover:text-gray-600 transition-colors duration-200 cursor-pointer;
+}
+
+.nav-logo {
+  @apply flex justify-center items-center;
+}
+
+.nav-actions {
+  @apply flex items-center space-x-4;
+}
+
+/* Hero Section */
+.hero-section {
+  @apply bg-gradient-to-br from-red-400 via-pink-500 to-orange-400 px-8 py-16 relative overflow-hidden;
+}
+
+.hero-content {
+  @apply max-w-6xl mx-auto flex items-center justify-between;
+}
+
+.hero-text {
+  @apply text-white max-w-lg;
+}
+
+.hero-title {
+  @apply text-5xl md:text-6xl font-bold mb-4 leading-tight;
+}
+
+.hero-subtitle {
+  @apply text-xl mb-8 font-light;
+}
+
+.hero-cta {
+  @apply bg-white text-gray-800 px-8 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors duration-200;
+}
+
+/* Product Cards */
+.product-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4;
+}
+
+.product-card {
+  @apply bg-orange-100 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 relative;
+}
+
+.product-image {
+  @apply w-full h-64 object-cover;
+}
+
+.product-overlay {
+  @apply absolute inset-0 bg-black bg-opacity-20 flex items-end p-4;
+}
+
+.product-info {
+  @apply text-white;
+}
+
+.product-title {
+  @apply text-xl font-bold mb-2;
+}
+
+.product-price {
+  @apply text-lg font-medium;
+}
+
+.bestseller-badge {
+  @apply absolute top-3 left-3 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.sold-out-badge {
+  @apply absolute top-3 right-3 bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-medium;
+}
+
+/* Category Sections */
+.category-showcase {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4;
+}
+
+.category-card {
+  @apply relative rounded-lg overflow-hidden group cursor-pointer;
+}
+
+.category-sweets {
+  @apply bg-gradient-to-br from-pink-400 to-pink-600;
+}
+
+.category-snacks {
+  @apply bg-gradient-to-br from-orange-400 to-orange-600;
+}
+
+.category-gifts {
+  @apply bg-gradient-to-br from-purple-500 to-purple-700;
+}
+
+.category-content {
+  @apply absolute inset-0 flex flex-col justify-center items-center text-white p-8;
+}
+
+.category-title {
+  @apply text-4xl font-bold mb-4;
+}
+
+.category-cta {
+  @apply border-2 border-white px-6 py-2 rounded-full hover:bg-white hover:text-gray-800 transition-all duration-200;
+}
+
+.category-image {
+  @apply absolute inset-0 w-full h-full object-cover;
+}
+
+/* Visit Us Section */
+.visit-section {
+  @apply py-16 bg-white;
+}
+
+.visit-content {
+  @apply max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 px-4;
+}
+
+.visit-info {
+  @apply space-y-4;
+}
+
+.visit-title {
+  @apply text-4xl font-bold text-gray-800 mb-8;
+}
+
+.visit-subtitle {
+  @apply text-2xl font-semibold text-gray-800;
+}
+
+.visit-address {
+  @apply text-lg text-gray-600;
+}
+
+.visit-hours {
+  @apply text-gray-600;
+}
+
+.visit-buttons {
+  @apply flex space-x-4 mt-6;
+}
+
+.visit-btn {
+  @apply bg-gray-800 text-white px-6 py-3 rounded-full hover:bg-gray-700 transition-colors duration-200;
+}
+
+.visit-image {
+  @apply rounded-lg overflow-hidden;
+}
+
+/* Story Section */
+.story-section {
+  @apply py-16 bg-orange-100;
+}
+
+.story-content {
+  @apply max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 px-4;
+}
+
+.story-text {
+  @apply space-y-6;
+}
+
+.story-label {
+  @apply text-sm uppercase tracking-wider text-gray-600 font-medium;
+}
+
+.story-title {
+  @apply text-4xl font-bold text-gray-800 mb-6;
+}
+
+.story-description {
+  @apply text-lg text-gray-600 leading-relaxed;
+}
+
+.story-cta {
+  @apply bg-gray-800 text-white px-6 py-3 rounded-full inline-block hover:bg-gray-700 transition-colors duration-200;
+}
+
+.story-images {
+  @apply grid grid-cols-2 gap-4;
+}
+
+/* Navratri Special Section */
+.navratri-section {
+  @apply py-16 bg-gradient-to-r from-orange-200 to-orange-300;
+}
+
+.navratri-content {
+  @apply max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 px-4 items-center;
+}
+
+.navratri-text {
+  @apply space-y-6;
+}
+
+.navratri-title {
+  @apply text-4xl font-bold text-gray-800;
+}
+
+.navratri-description {
+  @apply text-lg text-gray-600;
+}
+
+.navratri-products {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+/* Party Tray Section */
+.party-section {
+  @apply py-16 bg-gradient-to-r from-orange-300 to-orange-400;
+}
+
+.party-content {
+  @apply max-w-6xl mx-auto text-center px-4;
+}
+
+.party-images {
+  @apply flex justify-center space-x-8 mb-8;
+}
+
+.party-image {
+  @apply rounded-lg shadow-lg;
+}
+
+.party-title {
+  @apply text-4xl font-bold text-gray-800 mb-4;
+}
+
+.party-description {
+  @apply text-lg text-gray-600 mb-8 max-w-3xl mx-auto;
+}
+
+.party-cta {
+  @apply bg-gray-800 text-white px-8 py-3 rounded-full hover:bg-gray-700 transition-colors duration-200;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+  @apply py-16 bg-orange-200;
+}
+
+.testimonials-title {
+  @apply text-4xl font-bold text-center text-gray-800 mb-12;
+}
+
+.testimonials-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4;
+}
+
+.testimonial-card {
+  @apply bg-white rounded-lg p-6 shadow-lg;
+}
+
+.testimonial-stars {
+  @apply flex text-yellow-400 mb-4 text-xl;
+}
+
+.testimonial-text {
+  @apply text-gray-600 mb-4;
+}
+
+.testimonial-author {
+  @apply font-semibold text-gray-800;
+}
+
+/* Utility Classes */
+.section-padding {
+  @apply py-16 px-4;
+}
+
+.container-max {
+  @apply max-w-7xl mx-auto;
+}
+
+.btn-primary {
+  @apply bg-gray-800 text-white px-6 py-3 rounded-full hover:bg-gray-700 transition-colors duration-200;
+}
+
+.btn-secondary {
+  @apply border-2 border-gray-800 text-gray-800 px-6 py-3 rounded-full hover:bg-gray-800 hover:text-white transition-all duration-200;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .nav-menu {
+    @apply flex-col space-x-0 space-y-2;
+  }
+  
+  .hero-content {
+    @apply flex-col text-center space-y-8;
+  }
+  
+  .hero-title {
+    @apply text-3xl md:text-4xl;
+  }
+  
+  .category-showcase {
+    @apply grid-cols-1 gap-4;
+  }
+  
+  .product-grid {
+    @apply grid-cols-1 md:grid-cols-2 gap-4;
+  }
+}
