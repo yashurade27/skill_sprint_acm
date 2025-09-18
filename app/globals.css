@@ -1,48 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
-
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -76,6 +34,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --font-geist-sans: 'Geist Sans', sans-serif;
+  --font-geist-mono: 'Geist Mono', monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 .dark {
@@ -110,108 +74,237 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --font-geist-sans: 'Geist Sans', sans-serif;
+  --font-geist-mono: 'Geist Mono', monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: var(--ring);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 }
 
 
 
 /* Color Palette Classes */
-.bg-sukhadia-orange { @apply bg-orange-400; }
-.bg-sukhadia-warm { @apply bg-orange-300; }
-.bg-sukhadia-light { @apply bg-orange-100; }
-.bg-sukhadia-purple { @apply bg-purple-600; }
-.bg-sukhadia-pink { @apply bg-pink-500; }
-.text-sukhadia-dark { @apply text-gray-800; }
+.bg-sukhadia-orange { background-color: #fb923c; }
+.bg-sukhadia-warm { background-color: #fdba74; }
+.bg-sukhadia-light { background-color: #ffedd5; }
+.bg-sukhadia-purple { background-color: #7c3aed; }
+.bg-sukhadia-pink { background-color: #ec4899; }
+.text-sukhadia-dark { color: #1f2937; }
 
 /* Header Navigation */
 .nav-header {
-  @apply bg-gradient-to-r from-orange-300 to-orange-400 px-4 py-3;
+  background: linear-gradient(to right, #fdba74, #fb923c);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 }
 
 .nav-menu {
-  @apply flex items-center justify-center space-x-8 text-gray-800 font-medium;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  color: #1f2937;
+  font-weight: 500;
 }
 
 .nav-item {
-  @apply hover:text-gray-600 transition-colors duration-200 cursor-pointer;
+  cursor: pointer;
+  transition: color 0.2s;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 4px;
+}
+
+.nav-item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: #4b5563;
+  transition: width 0.3s ease;
+}
+
+.nav-item:hover {
+  color: #4b5563;
+}
+
+.nav-item:hover::after {
+  width: 100%;
 }
 
 .nav-logo {
-  @apply flex justify-center items-center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .nav-actions {
-  @apply flex items-center space-x-4;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 /* Hero Section */
 .hero-section {
-  @apply bg-gradient-to-br from-red-400 via-pink-500 to-orange-400 px-8 py-16 relative overflow-hidden;
+  background: linear-gradient(135deg, #f87171, #ec4899 50%, #fb923c);
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  position: relative;
+  overflow: hidden;
 }
 
 .hero-content {
-  @apply max-w-6xl mx-auto flex items-center justify-between;
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .hero-text {
-  @apply text-white max-w-lg;
+  color: #fff;
+  max-width: 32rem;
 }
 
 .hero-title {
-  @apply text-5xl md:text-6xl font-bold mb-4 leading-tight;
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  line-height: 1.1;
 }
 
 .hero-subtitle {
-  @apply text-xl mb-8 font-light;
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  font-weight: 300;
 }
 
 .hero-cta {
-  @apply bg-white text-gray-800 px-8 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors duration-200;
+  background: #fff;
+  color: #1f2937;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  transition: background 0.2s;
+  &:hover {
+    background: #f3f4f6;
+  }
 }
 
 /* Product Cards */
 .product-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .product-card {
-  @apply bg-orange-100 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 relative;
+  background: #ffedd5;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: box-shadow 0.3s;
+  position: relative;
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
 }
 
 .product-image {
-  @apply w-full h-64 object-cover;
+  width: 100%;
+  height: 16rem;
+  object-fit: cover;
 }
 
 .product-overlay {
-  @apply absolute inset-0 bg-black bg-opacity-20 flex items-end p-4;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.2);
+  display: flex;
+  align-items: flex-end;
+  padding: 1rem;
 }
 
+
 .product-info {
-  @apply text-white;
+  color: #fff;
 }
 
 .product-title {
-  @apply text-xl font-bold mb-2;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 
 .product-price {
-  @apply text-lg font-medium;
+  font-size: 1.125rem;
+  font-weight: 500;
 }
 
 .bestseller-badge {
-  @apply absolute top-3 left-3 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium;
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: #7c3aed;
+  color: #fff;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .sold-out-badge {
-  @apply absolute top-3 right-3 bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-medium;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: #1f2937;
+  color: #fff;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 /* Category Sections */
@@ -220,7 +313,7 @@
 }
 
 .category-card {
-  @apply relative rounded-lg overflow-hidden group cursor-pointer;
+  @apply relative rounded-lg overflow-hidden cursor-pointer;
 }
 
 .category-sweets {
