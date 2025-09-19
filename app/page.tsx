@@ -3,6 +3,7 @@ import HeroSection from "@/components/hero/Hero";
 import Navbar from "@/components/layout/Navbar";
 import FeaturedProducts from "@/components/products/FeaturedProducts";
 import SpecialCollections from "@/components/collections/SpecialCollections";
+import OurStory from "@/components/story/OurStory";
 import TestimonialsSection from "@/components/testimonials/TestimonialsSection";
 
 export default function Home() {
@@ -12,6 +13,7 @@ export default function Home() {
       <HeroSection/>
       <FeaturedProducts />
       <SpecialCollections />
+      <OurStory />
       <TestimonialsSection />
     </main>
   );
