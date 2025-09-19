@@ -41,7 +41,8 @@ export const createProductSchema = z.object({
   category_id: z.number().int().positive('Category is required'),
   image_url: z.string().url('Invalid image URL').optional(),
   images: z.array(z.string().url()).min(1, 'At least one image is required').max(10, 'Maximum 10 images allowed'),
-  is_active: z.boolean().default(true)
+  is_active: z.boolean().default(true),
+  is_featured: z.boolean().default(false)
 });
 
 export const updateProductSchema = z.object({
@@ -53,7 +54,8 @@ export const updateProductSchema = z.object({
   images: z.array(z.string().url()).min(1, 'At least one image is required').max(10, 'Maximum 10 images allowed').optional(),
   category_id: z.number().int().positive('Category is required').optional(),
   image_url: z.string().url('Invalid image URL').optional(),
-  is_active: z.boolean().optional()
+  is_active: z.boolean().optional(),
+  is_featured: z.boolean().optional()
 });
 
 export const dbProductSchema = z.object({
@@ -66,6 +68,7 @@ export const dbProductSchema = z.object({
   image_url: z.string().nullable(),
   images: z.array(z.string()).nullable(),
   is_active: z.boolean(),
+  is_featured: z.boolean(),
   created_at: z.date()
 });
 

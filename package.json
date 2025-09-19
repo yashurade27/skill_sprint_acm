@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup-db": "node scripts/add-products.js",
+    "upload-images": "node scripts/upload-images.js"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
@@ -17,6 +19,7 @@
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.2",
     "lucide-react": "^0.544.0",
     "multer": "^2.0.2",
     "next": "15.5.3",

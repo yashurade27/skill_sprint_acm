@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const search = searchParams.get("search");
     const isActive = searchParams.get("is_active");
+    const isFeatured = searchParams.get("is_featured");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = (page - 1) * limit;
@@ -26,7 +27,9 @@ export async function GET(request: NextRequest) {
         p.inventory,
         p.category_id,
         p.image_url,
+        p.images,
         p.is_active,
+        p.is_featured,
         p.created_at,
         c.name as category_name,
         c.slug as category_slug
@@ -48,6 +51,13 @@ export async function GET(request: NextRequest) {
       paramCount++;
       whereConditions.push(`p.is_active = $${paramCount}`);
       params.push(isActive === "true");
+    }
+
+    // Filter by featured status
+    if (isFeatured !== null) {
+      paramCount++;
+      whereConditions.push(`p.is_featured = $${paramCount}`);
+      params.push(isFeatured === "true");
     }
 
     // Filter by category
