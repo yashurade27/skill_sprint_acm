@@ -10,7 +10,6 @@ import {
   updateCartItemSchema,
   type AddToCartInput,
   type UpdateCartItemInput,
-  type DbCartItem,
 } from "@/lib/types";
 
 export async function addToCart(formData: FormData) {
