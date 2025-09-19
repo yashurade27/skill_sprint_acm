@@ -1,0 +1,204 @@
+Table "public.products"
+Column	Type	Collation	Nullable	Default
+id	integer		not null	nextval('products_id_seq'::regclass)
+name	text		not null	
+description	text			
+price_cents	integer		not null	
+inventory	integer		not null	0
+category_id	integer			
+image_url	text			
+is_active	boolean			true
+created_at	timestamp with time zone			now()
+Indexes:
+"products_pkey" PRIMARY KEY, btree (id)
+"idx_products_category" btree (category_id)
+Check constraints:
+"products_inventory_check" CHECK (inventory >= 0)
+"products_price_cents_check" CHECK (price_cents >= 0)
+Foreign-key constraints:
+"products_category_id_fkey" FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+Referenced by:
+TABLE "cart_items" CONSTRAINT "cart_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+TABLE "order_items" CONSTRAINT "order_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id)
+
+
+
+
+Table "public.addresses"
+Column	Type	Collation	Nullable	Default
+id	integer		not null	nextval('addresses_id_seq'::regclass)
+user_id	integer		not null	
+line1	text		not null	
+line2	text			
+city	text		not null	
+state	text		not null	
+postal_code	text		not null	
+phone	text			
+created_at	timestamp with time zone			now()
+Indexes:
+"addresses_pkey" PRIMARY KEY, btree (id)
+"idx_addresses_user" btree (user_id)
+Foreign-key constraints:
+"addresses_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+Referenced by:
+TABLE "orders" CONSTRAINT "orders_address_id_fkey" FOREIGN KEY (address_id) REFERENCES addresses(id)
+
+
+
+
+Table "public.categories"
+Column	Type	Collation	Nullable	Default
+id	integer		not null	nextval('categories_id_seq'::regclass)
+name	text		not null	
+slug	text		not null	
+description	text			
+created_at	timestamp with time zone			now()
+Indexes:
+"categories_pkey" PRIMARY KEY, btree (id)
+"categories_name_key" UNIQUE CONSTRAINT, btree (name)
+"categories_slug_key" UNIQUE CONSTRAINT, btree (slug)
+Referenced by:
+TABLE "products" CONSTRAINT "products_category_id_fkey" FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+
+
+
+Table "public.payments"
+Column	Type	Collation	Nullable	Default
+id	bigint		not null	nextval('payments_id_seq'::regclass)
+order_id	bigint		not null	
+razorpay_order_id	text			
+razorpay_payment_id	text			
+razorpay_signature	text			
+amount_cents	bigint		not null	
+currency	text		not null	'INR'::text
+status	text			'created'::text
+method	text			
+raw_response	jsonb			
+created_at	timestamp with time zone			now()
+updated_at	timestamp with time zone			now()
+Indexes:
+"payments_pkey" PRIMARY KEY, btree (id)
+"idx_payments_order" btree (order_id)
+"idx_payments_razorpay_order" btree (razorpay_order_id)
+Check constraints:
+"payments_method_check" CHECK (method = ANY (ARRAY['card'::text, 'netbanking'::text, 'wallet'::text, 'upi'::text, 'cod'::text]))
+"payments_status_check" CHECK (status = ANY (ARRAY['created'::text, 'authorized'::text, 'captured'::text, 'refunded'::text, 'failed'::text]))
+Foreign-key constraints:
+"payments_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+
+
+
+Table "public.cart_items"
+Column	Type	Collation	Nullable	Default
+id	integer		not null	nextval('cart_items_id_seq'::regclass)
+user_id	integer		not null	
+product_id	integer		not null	
+quantity	integer		not null	
+created_at	timestamp with time zone			now()
+Indexes:
+"cart_items_pkey" PRIMARY KEY, btree (id)
+"cart_items_user_id_product_id_key" UNIQUE CONSTRAINT, btree (user_id, product_id)
+"idx_cart_items_user" btree (user_id)
+Check constraints:
+"cart_items_quantity_check" CHECK (quantity > 0)
+Foreign-key constraints:
+"cart_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+"cart_items_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+
+
+
+Table "public.order_items"
+Column	Type	Collation	Nullable	Default
+id	bigint		not null	nextval('order_items_id_seq'::regclass)
+order_id	bigint		not null	
+product_id	integer		not null	
+qty	integer		not null	
+unit_price_cents	integer		not null	
+created_at	timestamp with time zone			now()
+Indexes:
+"order_items_pkey" PRIMARY KEY, btree (id)
+"idx_order_items_order" btree (order_id)
+Check constraints:
+"order_items_qty_check" CHECK (qty > 0)
+"order_items_unit_price_cents_check" CHECK (unit_price_cents >= 0)
+Foreign-key constraints:
+"order_items_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+"order_items_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id)
+
+
+
+Table "public.orders"
+Column	Type	Collation	Nullable	Default
+id	bigint		not null	nextval('orders_id_seq'::regclass)
+user_id	integer			
+address_id	integer			
+total_cents	bigint		not null	
+status	text			'pending'::text
+payment_status	text			'pending'::text
+payment_method	text			
+razorpay_order_id	text			
+razorpay_payment_id	text			
+placed_at	timestamp with time zone			now()
+notes	text			
+Indexes:
+"orders_pkey" PRIMARY KEY, btree (id)
+"idx_orders_payment_status" btree (payment_status)
+"idx_orders_user" btree (user_id)
+Check constraints:
+"orders_payment_method_check" CHECK (payment_method = ANY (ARRAY['razorpay'::text, 'cod'::text, 'upi'::text]))
+"orders_payment_status_check" CHECK (payment_status = ANY (ARRAY['pending'::text, 'paid'::text, 'failed'::text, 'refunded'::text]))
+"orders_status_check" CHECK (status = ANY (ARRAY['pending'::text, 'paid'::text, 'confirmed'::text, 'delivered'::text, 'cancelled'::text]))
+"orders_total_cents_check" CHECK (total_cents >= 0)
+Foreign-key constraints:
+"orders_address_id_fkey" FOREIGN KEY (address_id) REFERENCES addresses(id)
+"orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+Referenced by:
+TABLE "order_items" CONSTRAINT "order_items_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+TABLE "payments" CONSTRAINT "payments_order_id_fkey" FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+
+
+
+Table "public.addresses"
+Column	Type	Collation	Nullable	Default
+id	integer		not null	nextval('addresses_id_seq'::regclass)
+user_id	integer		not null	
+line1	text		not null	
+line2	text			
+city	text		not null	
+state	text		not null	
+postal_code	text		not null	
+phone	text			
+created_at	timestamp with time zone			now()
+Indexes:
+"addresses_pkey" PRIMARY KEY, btree (id)
+"idx_addresses_user" btree (user_id)
+Foreign-key constraints:
+"addresses_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+Referenced by:
+TABLE "orders" CONSTRAINT "orders_address_id_fkey" FOREIGN KEY (address_id) REFERENCES addresses(id)
+
+
+Table "public.users"
+Column	Type	Collation	Nullable	Default
+id	integer		not null	nextval('users_id_seq'::regclass)
+email	character varying(255)		not null	
+password	character varying(255)		not null	
+phone	character varying(20)			
+role	character varying(20)			'user'::character varying
+email_verified	boolean			false
+otp	character varying(6)			
+otp_expiry	timestamp without time zone			
+first_name	text			
+last_name	text			
+Indexes:
+"users_pkey" PRIMARY KEY, btree (id)
+"idx_users_email" btree (email)
+"idx_users_otp" btree (otp) WHERE otp IS NOT NULL
+"users_email_key" UNIQUE CONSTRAINT, btree (email)
+Referenced by:
+TABLE "addresses" CONSTRAINT "addresses_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+TABLE "cart_items" CONSTRAINT "cart_items_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+TABLE "orders" CONSTRAINT "orders_user_id_fkey" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+
+
+

@@ -6,11 +6,6 @@
 // PHASE 1: MVP ESSENTIALS (Week 1-2)
 // =====================================
 
-// 1. Authentication Setup ✅ (Already done)
-// - /api/auth/register
-// - /api/auth/verify-otp
-// - /api/auth/resend-otp
-// - NextAuth login/logout
 
 // 2. Product Management
 // API Endpoints:

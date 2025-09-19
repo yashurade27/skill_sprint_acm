@@ -4,11 +4,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Head from "next/head";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { ShoppingCart, Search, User, LogOut, Menu, X } from "lucide-react";
+import { useUser } from "@/hooks/useUser";
 
 export default function Navbar() {
-  const { data: session, status } = useSession();
+  const { user, isLoading, isAuthenticated, isAdmin } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const scrollToSection = (id: string) => {
@@ -108,9 +109,9 @@ export default function Navbar() {
               </Link>
 
               {/* Authentication - Desktop */}
-              {status === "loading" ? (
+              {isLoading ? (
                 <div className="w-8 h-8 bg-white/30 rounded-full animate-pulse"></div>
-              ) : session ? (
+              ) : isAuthenticated ? (
                 <div className="hidden sm:block relative group">
                   <button className="flex items-center space-x-2 p-2 rounded-full hover:bg-white/20 transition-colors">
                     <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
@@ -122,7 +123,7 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     <div className="px-4 py-2 border-b border-gray-100">
                       <p className="text-sm font-medium text-gray-800 truncate">
-                        {session.user?.email}
+                        {user?.email}
                       </p>
                     </div>
                     <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
@@ -131,7 +132,7 @@ export default function Navbar() {
                     <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                       My Orders
                     </Link>
-                    {session.user?.role === 'admin' && (
+                    {isAdmin && (
                       <Link href="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                         Admin Panel
                       </Link>
@@ -221,7 +222,7 @@ export default function Navbar() {
                 </div>
 
                 {/* User Section */}
-                {session ? (
+                {isAuthenticated ? (
                   <div className="border-b border-gray-200 pb-4">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-12 h-12 bg-orange-400 rounded-full flex items-center justify-center">
@@ -229,7 +230,7 @@ export default function Navbar() {
                       </div>
                       <div>
                         <p className="font-medium text-gray-800 text-sm truncate max-w-[200px]">
-                          {session.user?.email}
+                          {user?.email}
                         </p>
                       </div>
                     </div>
@@ -248,7 +249,7 @@ export default function Navbar() {
                       >
                         My Orders
                       </Link>
-                      {session.user?.role === 'admin' && (
+                      {isAdmin && (
                         <Link 
                           href="/admin" 
                           className="block py-2 text-gray-700 hover:text-orange-600"
