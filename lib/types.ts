@@ -40,6 +40,7 @@ export const createProductSchema = z.object({
   inventory: z.number().int().min(0, 'Inventory must be non-negative').default(0),
   category_id: z.number().int().positive('Category is required'),
   image_url: z.string().url('Invalid image URL').optional(),
+  images: z.array(z.string().url()).min(1, 'At least one image is required').max(10, 'Maximum 10 images allowed'),
   is_active: z.boolean().default(true)
 });
 
@@ -49,6 +50,7 @@ export const updateProductSchema = z.object({
   description: z.string().optional(),
   price_cents: z.number().int().min(0, 'Price must be positive').optional(),
   inventory: z.number().int().min(0, 'Inventory must be non-negative').optional(),
+  images: z.array(z.string().url()).min(1, 'At least one image is required').max(10, 'Maximum 10 images allowed').optional(),
   category_id: z.number().int().positive('Category is required').optional(),
   image_url: z.string().url('Invalid image URL').optional(),
   is_active: z.boolean().optional()
@@ -62,6 +64,7 @@ export const dbProductSchema = z.object({
   inventory: z.number(),
   category_id: z.number().nullable(),
   image_url: z.string().nullable(),
+  images: z.array(z.string()).nullable(),
   is_active: z.boolean(),
   created_at: z.date()
 });
