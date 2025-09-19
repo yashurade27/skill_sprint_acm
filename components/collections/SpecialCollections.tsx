@@ -39,7 +39,7 @@ export default function SpecialCollections() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Special Collections</h2>
+          <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-6">Special Collections</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">Curated selections for every occasion and tradition</p>
         </div>
 
