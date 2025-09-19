@@ -4,38 +4,38 @@
 // ========================================
 
 // product-actions.ts
-export async function createProduct(formData: FormData) {
-  // Admin: Create new product
-}
+// export async function createProduct(formData: FormData) {
+//   // Admin: Create new product
+// }
 
-export async function updateProduct(id: number, formData: FormData) {
-  // Admin: Update existing product
-}
+// export async function updateProduct(id: number, formData: FormData) {
+//   // Admin: Update existing product
+// }
 
-export async function deleteProduct(id: number) {
-  // Admin: Delete product
-}
+// export async function deleteProduct(id: number) {
+//   // Admin: Delete product
+// }
 
-export async function updateInventory(productId: number, quantity: number) {
-  // Admin: Update product inventory
-}
+// export async function updateInventory(productId: number, quantity: number) {
+//   // Admin: Update product inventory
+// }
 
 // cart-actions.ts
-export async function addToCart(userId: number, productId: number, quantity: number) {
-  // Add item to user's cart
-}
+// export async function addToCart(userId: number, productId: number, quantity: number) {
+//   // Add item to user's cart
+// }
 
-export async function updateCartItem(userId: number, productId: number, quantity: number) {
-  // Update cart item quantity
-}
+// export async function updateCartItem(userId: number, productId: number, quantity: number) {
+//   // Update cart item quantity
+// }
 
-export async function removeFromCart(userId: number, productId: number) {
-  // Remove item from cart
-}
+// export async function removeFromCart(userId: number, productId: number) {
+//   // Remove item from cart
+// }
 
-export async function clearCart(userId: number) {
-  // Clear entire cart
-}
+// export async function clearCart(userId: number) {
+//   // Clear entire cart
+// }
 
 // order-actions.ts
 export async function createOrder(formData: FormData) {
