@@ -37,18 +37,18 @@
 //   // Clear entire cart
 // }
 
-// order-actions.ts
-export async function createOrder(formData: FormData) {
-  // Create new order from cart
-}
+// // order-actions.ts
+// export async function createOrder(formData: FormData) {
+//   // Create new order from cart
+// }
 
-export async function updateOrderStatus(orderId: number, status: string) {
-  // Admin: Update order status
-}
+// export async function updateOrderStatus(orderId: number, status: string) {
+//   // Admin: Update order status
+// }
 
-export async function cancelOrder(orderId: number) {
-  // User/Admin: Cancel order
-}
+// export async function cancelOrder(orderId: number) {
+//   // User/Admin: Cancel order
+// }
 
 // address-actions.ts
 export async function createAddress(formData: FormData) {
