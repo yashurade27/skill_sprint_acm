@@ -50,41 +50,28 @@
 //   // User/Admin: Cancel order
 // }
 
-// address-actions.ts
-export async function createAddress(formData: FormData) {
-  // Create new shipping address
-}
+// // address-actions.ts
+// export async function createAddress(formData: FormData) {
+//   // Create new shipping address
+// }
 
-export async function updateAddress(id: number, formData: FormData) {
-  // Update existing address
-}
+// export async function updateAddress(id: number, formData: FormData) {
+//   // Update existing address
+// }
 
-export async function deleteAddress(id: number) {
-  // Delete address
-}
+// export async function deleteAddress(id: number) {
+//   // Delete address
+// }
 
 // category-actions.ts
-export async function createCategory(formData: FormData) {
-  // Admin: Create new category
-}
+// export async function createCategory(formData: FormData) {
+//   // Admin: Create new category
+// }
 
-export async function updateCategory(id: number, formData: FormData) {
-  // Admin: Update category
-}
+// export async function updateCategory(id: number, formData: FormData) {
+//   // Admin: Update category
+// }
 
-export async function deleteCategory(id: number) {
-  // Admin: Delete category
-}
-
-// review-actions.ts (if using reviews)
-export async function createReview(formData: FormData) {
-  // Create product review
-}
-
-export async function updateReview(id: number, formData: FormData) {
-  // Update review
-}
-
-export async function deleteReview(id: number) {
-  // Delete review
-}
+// export async function deleteCategory(id: number) {
+//   // Admin: Delete category
+// }
