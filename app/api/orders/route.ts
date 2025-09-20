@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
         o.placed_at,
         o.notes,
         u.email as user_email,
-        u.name as user_name,
+        CONCAT(u.first_name, ' ', u.last_name) as user_name,
         a.line1,
         a.line2,
         a.city,
@@ -99,8 +99,8 @@ export async function GET(request: NextRequest) {
         const itemsResult = await query(
           `SELECT 
             oi.product_id,
-            oi.quantity,
-            oi.price_cents,
+            oi.qty as quantity,
+            oi.unit_price_cents as price_cents,
             p.name as product_name,
             p.image_url
           FROM order_items oi
@@ -111,7 +111,11 @@ export async function GET(request: NextRequest) {
 
         return {
           ...order,
-          items: itemsResult.rows,
+          items: itemsResult.rows.map(item => ({
+            ...item,
+            price_amount: parseFloat((item.price_cents / 100).toFixed(2)),
+            line_total: parseFloat(((item.price_cents * item.quantity) / 100).toFixed(2))
+          })),
           total_amount: parseFloat((order.total_cents / 100).toFixed(2))
         };
       })
@@ -135,6 +139,96 @@ export async function GET(request: NextRequest) {
     console.error("Get orders error:", error);
     return NextResponse.json(
       { error: "Failed to fetch orders" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const {
+      items,
+      shipping_address,
+      total_cents,
+      payment_method = 'cod',
+      notes = ''
+    } = await request.json();
+
+    // Validate required fields
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return NextResponse.json({ error: "Items are required" }, { status: 400 });
+    }
+
+    if (!total_cents || total_cents <= 0) {
+      return NextResponse.json({ error: "Invalid total amount" }, { status: 400 });
+    }
+
+    // Create address if provided
+    let addressId = null;
+    if (shipping_address) {
+      const addressResult = await query(
+        `INSERT INTO addresses (user_id, line1, city, state, postal_code, phone)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id`,
+        [
+          session.user.id,
+          `${shipping_address.firstName} ${shipping_address.lastName}, ${shipping_address.address}`,
+          shipping_address.city,
+          shipping_address.state,
+          shipping_address.pincode,
+          shipping_address.phone
+        ]
+      );
+      addressId = addressResult.rows[0].id;
+    }
+
+    // Create order
+    const orderResult = await query(
+      `INSERT INTO orders (user_id, address_id, total_cents, status, payment_status, payment_method, notes, placed_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+       RETURNING id`,
+      [
+        session.user.id,
+        addressId,
+        total_cents,
+        'confirmed',
+        payment_method === 'cod' ? 'pending' : 'pending',
+        payment_method,
+        notes
+      ]
+    );
+
+    const orderId = orderResult.rows[0].id;
+
+    // Insert order items
+    for (const item of items) {
+      await query(
+        `INSERT INTO order_items (order_id, product_id, qty, unit_price_cents)
+         VALUES ($1, $2, $3, $4)`,
+        [orderId, item.product_id, item.quantity, item.price_cents]
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        order: {
+          id: orderId,
+          status: 'confirmed',
+          payment_status: payment_method === 'cod' ? 'pending' : 'pending',
+          total_amount: total_cents / 100
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Create order error:", error);
+    return NextResponse.json(
+      { error: "Failed to create order" },
       { status: 500 }
     );
   }

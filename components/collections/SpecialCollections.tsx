@@ -5,12 +5,19 @@ import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 
 export default function SpecialCollections() {
+  // Cloudinary collection images
+  const COLLECTION_IMAGES = {
+    diwali: "https://res.cloudinary.com/djgfbq5ql/image/upload/v1758354904/collections/diwali_collection.jpg",
+    savory: "https://res.cloudinary.com/djgfbq5ql/image/upload/v1758354905/collections/savory_collection.jpg",
+    upvas: "https://res.cloudinary.com/djgfbq5ql/image/upload/v1758354906/collections/upvas_collection.jpg"
+  };
+
   const collections = [
     {
       id: "diwali-sweets",
       title: "Diwali Special Sweets",
       items: ["Anarsa (अनारसा)", "Chirote (चिरोटे)", "Tilgul Ladu (तिळगुळ लाडू)", "Sweet Karanji"],
-      image: "/diwali-special-sweets-anarsa-chirote-tilgul-laddu.jpg",
+      image: COLLECTION_IMAGES.diwali,
       bgColor: "from-yellow-400 to-orange-500",
     },
     {
@@ -22,14 +29,14 @@ export default function SpecialCollections() {
         "Farali Thalipeeth (फराळी थालीपीठ)",
         "Rajgira Laddu",
       ],
-      image: "/fasting-food-sabudana-khichdi-vada-farali-thalipee.jpg",
+      image: COLLECTION_IMAGES.upvas,
       bgColor: "from-green-400 to-teal-500",
     },
     {
       id: "savory-snacks",
       title: "Traditional Savory Snacks",
       items: ["Kurdai (कुर्डई)", "Udid Papad (उडदाचे पापड)", "Spicy Sev (शेव)", "Corn Flakes Chivda"],
-      image: "/traditional-savory-snacks-kurdai-papad-sev-chivda.jpg",
+      image: COLLECTION_IMAGES.savory,
       bgColor: "from-red-400 to-pink-500",
     },
   ]

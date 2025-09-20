@@ -22,13 +22,15 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
-        redirect: false
+        redirect: false,
+        callbackUrl: '/'
       });
 
       if (result?.error) {
         setError('Invalid credentials. Please try again.');
-      } else {
-        window.location.href = '/'; // Redirect to home page
+      } else if (result?.ok) {
+        // Force a hard redirect to ensure session is properly loaded
+        window.location.replace('/');
       }
     } catch (error) {
       setError('Something went wrong. Please try again.');

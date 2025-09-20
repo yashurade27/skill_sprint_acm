@@ -70,7 +70,7 @@ export default function VisitUs() {
                 <CardContent className="p-6 text-center">
                   <Heart className="w-8 h-8 text-orange-500 mx-auto mb-3" />
                   <h4 className="font-semibold text-gray-800 mb-2">Made with Love</h4>
-                  <p className="text-sm text-gray-600">Handcrafted by Vandana & A Kate</p>
+                  <p className="text-sm text-gray-600">Handcrafted by Vandana & Shubhangi Kate</p>
                 </CardContent>
               </Card>
               <Card className="bg-orange-50 border-orange-200">
