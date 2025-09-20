@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { updateOrderStatusSchema, type UpdateOrderStatusInput } from "@/lib/types";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -13,7 +14,8 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const orderId = parseInt(context.params.id);
+    const params = await context.params;
+    const orderId = parseInt(params.id);
     if (isNaN(orderId)) {
       return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
     }
@@ -84,10 +86,18 @@ export async function GET(
       [orderId]
     );
 
+    // Calculate total from items if total_cents is null
+    let calculatedTotal = order.total_cents;
+    if (!calculatedTotal && itemsResult.rows.length > 0) {
+      calculatedTotal = itemsResult.rows.reduce((sum, item) => {
+        return sum + (item.price_cents * item.quantity);
+      }, 0);
+    }
+
     // Format the response
     const formattedOrder = {
       ...order,
-      total_amount: parseFloat((order.total_cents / 100).toFixed(2)),
+      total_amount: calculatedTotal ? parseFloat((calculatedTotal / 100).toFixed(2)) : 0,
       items: itemsResult.rows.map(item => ({
         ...item,
         price_amount: parseFloat((item.price_cents / 100).toFixed(2)),
@@ -106,6 +116,113 @@ export async function GET(
     console.error("Get single order error:", error);
     return NextResponse.json(
       { error: "Failed to fetch order" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Check authentication and admin role
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== "admin") {
+      return NextResponse.json(
+        { error: "Unauthorized. Admin access required." },
+        { status: 401 }
+      );
+    }
+
+    const params = await context.params;
+    const orderId = parseInt(params.id);
+    if (isNaN(orderId)) {
+      return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
+    }
+
+    const body = await request.json();
+    
+    // Validate input
+    const parsed = updateOrderStatusSchema.safeParse({ ...body, id: orderId });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid input", details: parsed.error.issues },
+        { status: 400 }
+      );
+    }
+
+    const updateData: UpdateOrderStatusInput = parsed.data;
+
+    // Check if order exists
+    const existingOrder = await query(
+      "SELECT id, status, payment_status FROM orders WHERE id = $1",
+      [orderId]
+    );
+
+    if (existingOrder.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Order not found" },
+        { status: 404 }
+      );
+    }
+
+    const currentOrder = existingOrder.rows[0];
+
+    // Build dynamic update query
+    const updateFields: string[] = [];
+    const updateValues: any[] = [];
+    let paramCount = 0;
+
+    if (updateData.status !== undefined) {
+      paramCount++;
+      updateFields.push(`status = $${paramCount}`);
+      updateValues.push(updateData.status);
+    }
+
+    if (updateData.payment_status !== undefined) {
+      paramCount++;
+      updateFields.push(`payment_status = $${paramCount}`);
+      updateValues.push(updateData.payment_status);
+    }
+
+    if (updateFields.length === 0) {
+      return NextResponse.json(
+        { error: "No fields to update" },
+        { status: 400 }
+      );
+    }
+
+    // Add order ID to parameters
+    paramCount++;
+    updateValues.push(orderId);
+
+    // Execute update
+    const result = await query(
+      `UPDATE orders 
+       SET ${updateFields.join(', ')}
+       WHERE id = $${paramCount}
+       RETURNING id, status, payment_status, total_cents, placed_at`,
+      updateValues
+    );
+
+    const updatedOrder = result.rows[0];
+
+    return NextResponse.json({
+      success: true,
+      message: "Order status updated successfully",
+      data: {
+        order: {
+          ...updatedOrder,
+          total_amount: updatedOrder.total_cents ? parseFloat((updatedOrder.total_cents / 100).toFixed(2)) : 0
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Update order error:", error);
+    return NextResponse.json(
+      { error: "Failed to update order" },
       { status: 500 }
     );
   }

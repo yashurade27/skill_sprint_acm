@@ -14,7 +14,7 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center justify-center md:justify-start space-x-2">
                 <MapPin className="w-4 h-4 text-orange-600" />
-                <span className="text-sm text-gray-700">Nigdi, Krushnagar, Maharashtra, Pune</span>
+                <span className="text-sm text-gray-700"> Krushnagar, Nigdi, Maharashtra, Pune</span>
               </div>
               <div className="flex items-center justify-center md:justify-start space-x-2">
                 <Phone className="w-4 h-4 text-orange-600" />

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
 
 export default function RegisterPage() {
   const [step, setStep] = useState<'register' | 'verify'>('register');
@@ -23,6 +24,8 @@ export default function RegisterPage() {
     setError('');
     setSuccess('');
 
+    const loadingToast = toast.loading('Creating your account...');
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -36,12 +39,21 @@ export default function RegisterPage() {
 
       if (response.ok) {
         setSuccess('Registration successful! Please check your email for the OTP.');
+        toast.success('Registration successful! Check your email for OTP.', {
+          id: loadingToast
+        });
         setStep('verify');
       } else {
         setError(data.error || 'Registration failed');
+        toast.error(data.error || 'Registration failed', {
+          id: loadingToast
+        });
       }
     } catch (error) {
       setError('Something went wrong. Please try again.');
+      toast.error('Something went wrong. Please try again.', {
+        id: loadingToast
+      });
     } finally {
       setIsLoading(false);
     }
@@ -51,6 +63,8 @@ export default function RegisterPage() {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    const loadingToast = toast.loading('Verifying OTP...');
 
     try {
       const response = await fetch('/api/auth/verify-otp', {
@@ -68,14 +82,23 @@ export default function RegisterPage() {
 
       if (response.ok) {
         setSuccess('Email verified successfully! You can now login.');
+        toast.success('Email verified! Redirecting to login...', {
+          id: loadingToast
+        });
         setTimeout(() => {
           window.location.href = '/auth/login';
         }, 2000);
       } else {
         setError(data.error || 'OTP verification failed');
+        toast.error(data.error || 'OTP verification failed', {
+          id: loadingToast
+        });
       }
     } catch (error) {
       setError('Something went wrong. Please try again.');
+      toast.error('Something went wrong. Please try again.', {
+        id: loadingToast
+      });
     } finally {
       setIsLoading(false);
     }
@@ -84,6 +107,8 @@ export default function RegisterPage() {
   const handleResendOTP = async () => {
     setIsLoading(true);
     setError('');
+
+    const loadingToast = toast.loading('Resending OTP...');
 
     try {
       const response = await fetch('/api/auth/resend-otp', {
@@ -98,11 +123,20 @@ export default function RegisterPage() {
 
       if (response.ok) {
         setSuccess('OTP sent successfully! Please check your email.');
+        toast.success('OTP resent! Check your email.', {
+          id: loadingToast
+        });
       } else {
         setError(data.error || 'Failed to resend OTP');
+        toast.error(data.error || 'Failed to resend OTP', {
+          id: loadingToast
+        });
       }
     } catch (error) {
       setError('Something went wrong. Please try again.');
+      toast.error('Something went wrong. Please try again.', {
+        id: loadingToast
+      });
     } finally {
       setIsLoading(false);
     }

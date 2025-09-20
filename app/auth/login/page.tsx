@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -18,6 +19,8 @@ export default function LoginPage() {
     setIsLoading(true);
     setError('');
 
+    const loadingToast = toast.loading('Signing in...');
+
     try {
       const result = await signIn('credentials', {
         email: formData.email,
@@ -28,12 +31,23 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError('Invalid credentials. Please try again.');
+        toast.error('Invalid credentials. Please try again.', {
+          id: loadingToast
+        });
       } else if (result?.ok) {
+        toast.success('Welcome back! Redirecting...', {
+          id: loadingToast
+        });
         // Force a hard redirect to ensure session is properly loaded
-        window.location.replace('/');
+        setTimeout(() => {
+          window.location.replace('/');
+        }, 1000);
       }
     } catch (error) {
       setError('Something went wrong. Please try again.');
+      toast.error('Something went wrong. Please try again.', {
+        id: loadingToast
+      });
     } finally {
       setIsLoading(false);
     }

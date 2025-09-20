@@ -109,6 +109,14 @@ export async function GET(request: NextRequest) {
           [order.id]
         );
 
+        // Calculate total from items if total_cents is null
+        let calculatedTotal = order.total_cents;
+        if (!calculatedTotal && itemsResult.rows.length > 0) {
+          calculatedTotal = itemsResult.rows.reduce((sum, item) => {
+            return sum + (item.price_cents * item.quantity);
+          }, 0);
+        }
+
         return {
           ...order,
           items: itemsResult.rows.map(item => ({
@@ -116,7 +124,7 @@ export async function GET(request: NextRequest) {
             price_amount: parseFloat((item.price_cents / 100).toFixed(2)),
             line_total: parseFloat(((item.price_cents * item.quantity) / 100).toFixed(2))
           })),
-          total_amount: parseFloat((order.total_cents / 100).toFixed(2))
+          total_amount: calculatedTotal ? parseFloat((calculatedTotal / 100).toFixed(2)) : 0
         };
       })
     );
@@ -171,13 +179,26 @@ export async function POST(request: NextRequest) {
     // Create address if provided
     let addressId = null;
     if (shipping_address) {
+      // Update user's name if provided and different
+      if (shipping_address.firstName || shipping_address.lastName) {
+        await query(
+          `UPDATE users SET first_name = $1, last_name = $2 WHERE id = $3`,
+          [
+            shipping_address.firstName || null,
+            shipping_address.lastName || null,
+            session.user.id
+          ]
+        );
+      }
+
       const addressResult = await query(
-        `INSERT INTO addresses (user_id, line1, city, state, postal_code, phone)
-         VALUES ($1, $2, $3, $4, $5, $6)
+        `INSERT INTO addresses (user_id, line1, line2, city, state, postal_code, phone)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING id`,
         [
           session.user.id,
-          `${shipping_address.firstName} ${shipping_address.lastName}, ${shipping_address.address}`,
+          shipping_address.address,
+          null, // line2 can be used for apartment/suite
           shipping_address.city,
           shipping_address.state,
           shipping_address.pincode,

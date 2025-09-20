@@ -77,10 +77,7 @@ export default function FestivalSlider() {
   const currentFestival = festivals[currentIndex]
 
   const scrollToProducts = () => {
-    const element = document.getElementById("products")
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-    }
+    window.location.href = '/products'
   }
 
   return (

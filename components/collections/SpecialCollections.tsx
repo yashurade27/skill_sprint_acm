@@ -80,6 +80,7 @@ export default function SpecialCollections() {
                   <Button
                     variant="outline"
                     className="border-2 border-white text-white hover:bg-white hover:text-gray-800 font-semibold px-6 py-2 rounded-full transition-all duration-300 group-hover:scale-105 bg-transparent"
+                    onClick={() => window.location.href = '/products'}
                   >
                     Explore Collection
                   </Button>

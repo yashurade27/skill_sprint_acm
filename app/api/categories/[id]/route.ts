@@ -1,79 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { updateCategorySchema, type UpdateCategoryInput } from "@/lib/types";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const categoryId = parseInt(context.params.id);
+    const params = await context.params;
+    const categoryId = parseInt(params.id);
     if (isNaN(categoryId)) {
       return NextResponse.json({ error: "Invalid category ID" }, { status: 400 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const includeProducts = searchParams.get("include_products") === "true";
-
-    // Get category details
-    const categoryResult = await query(
+    const result = await query(
       `SELECT 
-        id,
-        name,
-        slug,
-        description,
-        created_at
-      FROM categories 
-      WHERE id = $1`,
+        c.id,
+        c.name,
+        c.slug,
+        c.description,
+        c.created_at,
+        COUNT(p.id) as product_count
+      FROM categories c
+      LEFT JOIN products p ON c.id = p.category_id AND p.is_active = true
+      WHERE c.id = $1
+      GROUP BY c.id, c.name, c.slug, c.description, c.created_at`,
       [categoryId]
     );
 
-    if (categoryResult.rows.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ 
         error: "Category not found" 
       }, { status: 404 });
     }
 
-    const category = categoryResult.rows[0];
-
-    // Get products in this category if requested
-    if (includeProducts) {
-      const productsResult = await query(
-        `SELECT 
-          id,
-          name,
-          description,
-          price_cents,
-          inventory,
-          image_url,
-          is_active,
-          created_at
-        FROM products 
-        WHERE category_id = $1 AND is_active = true
-        ORDER BY created_at DESC`,
-        [categoryId]
-      );
-
-      // Format prices from cents to decimal
-      const formattedProducts = productsResult.rows.map(product => ({
-        ...product,
-        price: parseFloat((product.price_cents / 100).toFixed(2))
-      }));
-
-      category.products = formattedProducts;
-      category.product_count = formattedProducts.length;
-    } else {
-      // Just get product count
-      const countResult = await query(
-        "SELECT COUNT(*) as product_count FROM products WHERE category_id = $1 AND is_active = true",
-        [categoryId]
-      );
-      category.product_count = parseInt(countResult.rows[0].product_count);
-    }
+    const category = result.rows[0];
 
     return NextResponse.json({
       success: true,
       data: {
-        category
+        category: {
+          ...category,
+          product_count: parseInt(category.product_count) || 0
+        }
       }
     });
 

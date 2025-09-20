@@ -179,7 +179,7 @@ const testimonials = [
 
 export default function TestimonialsSection() {
   return (
-    <section className="py-16 bg-gray-50 overflow-hidden">
+    <section id="testimonials" className="py-16 bg-gray-50 overflow-hidden">
       <div className="text-center mb-12">
         <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-4">What people are saying</h2>
         <div className="w-16 h-0.5 bg-gray-400 mx-auto"></div>

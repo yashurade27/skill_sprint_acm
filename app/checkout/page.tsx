@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Badge } from "@/components/ui/badge"
+import toast from "react-hot-toast"
 import { ArrowLeft, CreditCard, Truck, MapPin, Lock, Plus, Minus, Trash2 } from "lucide-react"
 import { useStore } from "@/lib/store"
 
@@ -82,8 +83,11 @@ export default function CheckoutPage() {
     const res = await initializeRazorpay()
     if (!res) {
       setError("Razorpay SDK failed to load. Please try again.")
+      toast.error("Payment system failed to load. Please try again.")
       return
     }
+
+    const loadingToast = toast.loading('Preparing payment...')
 
     try {
       setIsLoading(true)
@@ -104,14 +108,24 @@ export default function CheckoutPage() {
       if (!orderResponse.ok) {
         const errorData = await orderResponse.json().catch(() => ({ error: 'Unknown error' }))
         console.error('Order creation failed:', errorData)
+        toast.error(errorData.error || 'Failed to create payment order', {
+          id: loadingToast
+        })
         throw new Error(errorData.error || 'Failed to create payment order')
       }
 
       const orderData = await orderResponse.json()
 
       if (!orderData.success) {
+        toast.error(orderData.error || 'Failed to create payment order', {
+          id: loadingToast
+        })
         throw new Error(orderData.error || 'Failed to create payment order')
       }
+
+      toast.success('Payment initialized! Complete the payment.', {
+        id: loadingToast
+      })
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -146,12 +160,15 @@ export default function CheckoutPage() {
             
             if (verifyData.success) {
               clearCart()
+              toast.success('Payment successful! Redirecting to order confirmation...')
               router.push(`/order-success?order=${verifyData.data.order.id}`)
             } else {
+              toast.error(verifyData.error || 'Payment verification failed')
               throw new Error(verifyData.error || 'Payment verification failed')
             }
           } catch (error) {
             console.error('Payment verification error:', error)
+            toast.error('Payment verification failed. Please contact support.')
             setError('Payment verification failed. Please contact support if money was deducted.')
           }
         },
@@ -159,6 +176,7 @@ export default function CheckoutPage() {
           ondismiss: function() {
             setIsLoading(false)
             setError('Payment was cancelled. You can try again.')
+            toast.error('Payment was cancelled. You can try again.')
           }
         },
         prefill: {
@@ -176,6 +194,9 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error('Payment initialization error:', error)
       setError('Failed to initialize payment. Please check your internet connection and try again.')
+      toast.error('Failed to initialize payment. Please try again.', {
+        id: loadingToast
+      })
     } finally {
       setIsLoading(false)
     }
@@ -199,8 +220,13 @@ export default function CheckoutPage() {
     setIsProcessing(true)
     setError("")
 
+    const loadingToast = toast.loading(
+      paymentMethod === 'razorpay' ? 'Preparing payment...' : 'Placing your order...'
+    )
+
     try {
       if (paymentMethod === 'razorpay') {
+        toast.dismiss(loadingToast)
         await handleRazorpayPayment()
         return
       }
@@ -229,17 +255,30 @@ export default function CheckoutPage() {
         const result = await response.json()
         if (result.success) {
           clearCart()
+          toast.success('Order placed successfully! Redirecting...', {
+            id: loadingToast
+          })
           router.push(`/order-success?order=${result.data.order.id}`)
         } else {
+          toast.error(result.error || 'Failed to place order', {
+            id: loadingToast
+          })
           throw new Error(result.error || 'Failed to place order')
         }
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        toast.error(errorData.error || 'Failed to place order', {
+          id: loadingToast
+        })
         throw new Error(errorData.error || 'Failed to place order')
       }
     } catch (error) {
       console.error('Order placement error:', error)
-      setError(`Failed to place order: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`)
+      const errorMessage = `Failed to place order: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`
+      setError(errorMessage)
+      toast.error(errorMessage, {
+        id: loadingToast
+      })
     } finally {
       setIsProcessing(false)
     }
