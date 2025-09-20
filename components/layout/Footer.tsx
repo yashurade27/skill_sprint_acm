@@ -37,7 +37,7 @@ export default function Footer() {
           <div className="text-center md:text-right">
             <h3 className="text-lg font-serif text-gray-900 mb-4">About</h3>
             <p className="text-sm text-gray-700 mb-3">
-              Handcrafted traditional Indian sweets and snacks made with love by Vandana Kadam & A Kate.
+              Handcrafted traditional Indian sweets and snacks made with love by Vandana Kadam & Shubhangi Kate.
             </p>
             <div className="flex items-center justify-center md:justify-end space-x-1">
               <span className="text-sm text-gray-700">Made with</span>
@@ -51,7 +51,7 @@ export default function Footer() {
         <div className="mt-8 pt-8 border-t border-orange-400/30">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-sm text-gray-700">
-              © 2025 Vandana & A Kate's Kitchen. All rights reserved.
+              © 2025 KadamKate's Snacks. All rights reserved.
             </div>
             <div className="text-sm text-gray-700">
               Serving authentic flavors since 10+ years
