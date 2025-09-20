@@ -49,7 +49,7 @@ export default function RegisterPage() {
           id: loadingToast
         });
       }
-    } catch (error) {
+    } catch {
       setError('Something went wrong. Please try again.');
       toast.error('Something went wrong. Please try again.', {
         id: loadingToast
@@ -94,7 +94,7 @@ export default function RegisterPage() {
           id: loadingToast
         });
       }
-    } catch (error) {
+    } catch {
       setError('Something went wrong. Please try again.');
       toast.error('Something went wrong. Please try again.', {
         id: loadingToast
@@ -132,7 +132,7 @@ export default function RegisterPage() {
           id: loadingToast
         });
       }
-    } catch (error) {
+    } catch {
       setError('Something went wrong. Please try again.');
       toast.error('Something went wrong. Please try again.', {
         id: loadingToast

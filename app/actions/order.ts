@@ -10,7 +10,6 @@ import {
   updateOrderStatusSchema,
   type CreateOrderInput,
   type UpdateOrderStatusInput,
-  type DbOrder,
 } from "@/lib/types";
 
 export async function createOrder(formData: FormData) {
@@ -130,7 +129,7 @@ export async function updateOrderStatus(formData: FormData) {
 
     // Build update query dynamically based on provided fields
     let updateQuery = "UPDATE orders SET status = $1";
-    let params: any[] = [status];
+    const params: (string | number)[] = [status];
     let paramCount = 1;
 
     if (payment_status !== undefined) {

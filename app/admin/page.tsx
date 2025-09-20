@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Package, ShoppingCart, Users, TrendingUp, Plus, Settings } from "lucide-react"
+import { TrendingUp, Users, Package, ShoppingCart, Plus } from "lucide-react"
 import Link from "next/link"
 
 interface DashboardStats {

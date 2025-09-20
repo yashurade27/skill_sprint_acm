@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     `;
 
     const whereConditions = [];
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramCount = 0;
 
     // Search in email or name

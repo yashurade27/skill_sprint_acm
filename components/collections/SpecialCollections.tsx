@@ -52,7 +52,7 @@ export default function SpecialCollections() {
 
         {/* Collections grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {collections.map((collection, index) => (
+          {collections.map((collection) => (
             <Card
               key={collection.id}
               className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 h-96"

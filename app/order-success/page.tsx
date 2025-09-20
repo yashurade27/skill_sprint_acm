@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
@@ -8,18 +8,16 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, Package, ArrowRight } from "lucide-react"
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams.get('order')
-  const [orderDetails, setOrderDetails] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [order, setOrder] = useState<any>(null)
 
   useEffect(() => {
     if (orderId) {
       fetchOrderDetails(orderId)
-    } else {
-      setLoading(false)
     }
   }, [orderId])
 
@@ -28,12 +26,10 @@ export default function OrderSuccessPage() {
       const response = await fetch(`/api/orders/${id}`)
       if (response.ok) {
         const data = await response.json()
-        setOrderDetails(data.data.order)
+        setOrder(data.data.order)
       }
     } catch (error) {
       console.error('Failed to fetch order details:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -55,10 +51,10 @@ export default function OrderSuccessPage() {
             <div className="mb-6">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
               <h1 className="text-3xl font-serif text-gray-800 mb-2">Order Placed Successfully!</h1>
-              <p className="text-gray-600">Thank you for your order. We'll prepare it with care.</p>
+              <p className="text-gray-600">Thank you for your order.                   We&apos;re preparing your order with care!</p>
             </div>
 
-            {orderDetails && (
+            {order && (
               <Card className="bg-white/60 backdrop-blur-sm border-white/20 mb-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -69,19 +65,19 @@ export default function OrderSuccessPage() {
                 <CardContent className="text-left space-y-2">
                   <div className="flex justify-between">
                     <span className="font-medium">Order ID:</span>
-                    <span>#{orderDetails.id}</span>
+                    <span>#{order.id}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Total Amount:</span>
-                    <span>₹{orderDetails.total_amount}</span>
+                    <span>₹{order.total_amount}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Payment Method:</span>
-                    <span className="capitalize">{orderDetails.payment_method}</span>
+                    <span className="capitalize">{order.payment_method}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Status:</span>
-                    <span className="capitalize">{orderDetails.status}</span>
+                    <span className="capitalize">{order.status}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -114,5 +110,32 @@ export default function OrderSuccessPage() {
         <Footer />
       </div>
     </div>
+  )
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen w-full relative">
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            background: "radial-gradient(125% 125% at 50% 90%, #fff 40%, #f97316 100%)",
+          }}
+        />
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <Navbar />
+          <div className="container mx-auto px-4 max-w-7xl py-20 flex-1 flex flex-col justify-center">
+            <div className="text-center bg-white/90 backdrop-blur-sm rounded-lg p-8 border-white/20 max-w-md mx-auto">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading...</p>
+            </div>
+          </div>
+          <Footer />
+        </div>
+      </div>
+    }>
+      <OrderSuccessContent />
+    </Suspense>
   )
 }

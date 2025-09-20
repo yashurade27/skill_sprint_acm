@@ -106,8 +106,6 @@ export async function PUT(
       );
     }
 
-    const currentUser = existingUser.rows[0];
-
     // Prevent admin from demoting themselves
     if (parseInt(session.user.id!) === userId && role === "user") {
       return NextResponse.json(
@@ -176,8 +174,6 @@ export async function DELETE(
         { status: 404 }
       );
     }
-
-    const currentUser = existingUser.rows[0];
 
     // Prevent admin from deleting themselves
     if (parseInt(session.user.id!) === userId) {

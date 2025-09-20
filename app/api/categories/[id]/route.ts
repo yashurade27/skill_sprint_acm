@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { updateCategorySchema, type UpdateCategoryInput } from "@/lib/types";
 
 export async function GET(
   request: NextRequest,

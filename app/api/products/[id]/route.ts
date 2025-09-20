@@ -138,7 +138,7 @@ export async function PUT(
 
     // Build dynamic update query
     const updateFields: string[] = [];
-    const updateValues: any[] = [];
+    const updateValues: unknown[] = [];
     let paramCount = 0;
 
     if (updateData.name !== undefined) {

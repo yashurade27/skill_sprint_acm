@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Package, Plus, Edit, Trash2, Search, Filter } from "lucide-react"
@@ -32,18 +32,7 @@ export default function AdminProducts() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterActive, setFilterActive] = useState("all")
 
-  useEffect(() => {
-    if (status === "loading") return
-
-    if (!session || session.user?.role !== "admin") {
-      router.push("/auth/login")
-      return
-    }
-
-    fetchProducts()
-  }, [session, status, router])
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true)
       const url = new URL("/api/products", window.location.origin)
@@ -67,7 +56,18 @@ export default function AdminProducts() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchTerm, filterActive])
+
+  useEffect(() => {
+    if (status === "loading") return
+
+    if (!session || session.user?.role !== "admin") {
+      router.push("/auth/login")
+      return
+    }
+
+    fetchProducts()
+  }, [session, status, router, fetchProducts])
 
   const handleSearch = () => {
     fetchProducts()

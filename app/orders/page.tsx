@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -18,7 +18,6 @@ import {
   Truck, 
   CreditCard,
   MapPin,
-  Calendar,
   ArrowLeft,
   Eye,
   Loader2
@@ -65,14 +64,7 @@ export default function OrdersPage() {
     }
   }, [status, router])
 
-  // Fetch orders
-  useEffect(() => {
-    if (session?.user) {
-      fetchOrders()
-    }
-  }, [session, page])
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true)
       setError("")
@@ -92,7 +84,14 @@ export default function OrdersPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [page])
+
+  // Fetch orders
+  useEffect(() => {
+    if (session?.user) {
+      fetchOrders()
+    }
+  }, [session, fetchOrders])
 
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
@@ -232,7 +231,7 @@ export default function OrdersPage() {
               <div className="text-center bg-white/90 backdrop-blur-sm rounded-lg p-12">
                 <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                 <h2 className="text-xl font-medium text-gray-600 mb-2">No Orders Yet</h2>
-                <p className="text-gray-500 mb-6">You haven't placed any orders yet. Start shopping to see your orders here.</p>
+                <p className="text-gray-500 mb-6">                      You haven&apos;t placed any orders yet.</p>
                 <Button 
                   onClick={() => router.push("/products")}
                   className="bg-orange-500 hover:bg-orange-600"

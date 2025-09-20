@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Users, Search, Filter, Shield, UserX, Crown } from "lucide-react"
@@ -30,18 +30,7 @@ export default function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState("all")
   const [updating, setUpdating] = useState<number | null>(null)
 
-  useEffect(() => {
-    if (status === "loading") return
-
-    if (!session || session.user?.role !== "admin") {
-      router.push("/auth/login")
-      return
-    }
-
-    fetchUsers()
-  }, [session, status, router])
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true)
       const url = new URL("/api/users", window.location.origin)
@@ -65,7 +54,18 @@ export default function AdminUsers() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchTerm, roleFilter])
+
+  useEffect(() => {
+    if (status === "loading") return
+
+    if (!session || session.user?.role !== "admin") {
+      router.push("/auth/login")
+      return
+    }
+
+    fetchUsers()
+  }, [session, status, router, fetchUsers])
 
   const handleSearch = () => {
     fetchUsers()

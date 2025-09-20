@@ -5,7 +5,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -13,7 +13,8 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const addressId = parseInt(context.params.id);
+    const params = await context.params;
+    const addressId = parseInt(params.id);
     if (isNaN(addressId)) {
       return NextResponse.json({ error: "Invalid address ID" }, { status: 400 });
     }

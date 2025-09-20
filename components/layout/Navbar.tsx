@@ -12,7 +12,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const cartCount = useStore((state) => state.cartCount)
   const router = useRouter()
   const pathname = usePathname()
@@ -23,7 +23,7 @@ export default function Navbar() {
       setIsScrolled(scrollTop > 50)
     }
 
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = () => {
       if (showUserMenu) {
         setShowUserMenu(false)
       }
@@ -77,7 +77,7 @@ export default function Navbar() {
                     isScrolled ? "text-gray-800" : "text-white drop-shadow-lg"
                   }`}
                 >
-                  KadamKate's Snacks
+                  KadamKate&apos;s Snacks
                 </span>
               </Link>
             </div>

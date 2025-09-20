@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter, useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -57,18 +57,7 @@ export default function OrderDetails() {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
 
-  useEffect(() => {
-    if (status === "loading") return
-
-    if (!session || session.user?.role !== "admin") {
-      router.push("/auth/login")
-      return
-    }
-
-    fetchOrder()
-  }, [session, status, router, orderId])
-
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       const response = await fetch(`/api/orders/${orderId}`)
       const data = await response.json()
@@ -86,7 +75,18 @@ export default function OrderDetails() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [orderId, router])
+
+  useEffect(() => {
+    if (status === "loading") return
+
+    if (!session || session.user?.role !== "admin") {
+      router.push("/auth/login")
+      return
+    }
+
+    fetchOrder()
+  }, [session, status, router, fetchOrder])
 
   const updateOrderStatus = async (newStatus: string) => {
     if (!confirm(`Are you sure you want to change the order status to "${newStatus}"?`)) {

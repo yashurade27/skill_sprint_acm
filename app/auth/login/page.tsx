@@ -43,7 +43,7 @@ export default function LoginPage() {
           window.location.replace('/');
         }, 1000);
       }
-    } catch (error) {
+    } catch {
       setError('Something went wrong. Please try again.');
       toast.error('Something went wrong. Please try again.', {
         id: loadingToast
@@ -118,7 +118,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center">
           <p className="text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/auth/register" className="text-orange-500 hover:text-orange-600 font-medium">
               Sign up here
             </Link>

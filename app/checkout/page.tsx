@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
-import Script from "next/script"
 import Navbar from "@/components/layout/Navbar"
 import Footer from "@/components/layout/Footer"
 import { Button } from "@/components/ui/button"
@@ -20,20 +19,20 @@ import { useStore } from "@/lib/store"
 
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: new (options: Record<string, unknown>) => {
+      open: () => void;
+    };
   }
 }
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useStore()
   const [step, setStep] = useState(1) // 1: Cart Review, 2: Shipping, 3: Payment
   const [paymentMethod, setPaymentMethod] = useState("cod")
   const [isProcessing, setIsProcessing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [razorpayLoaded, setRazorpayLoaded] = useState(false)
 
   const [shippingInfo, setShippingInfo] = useState({
     firstName: "",
@@ -44,13 +43,6 @@ export default function CheckoutPage() {
     city: "",
     state: "",
     pincode: "",
-  })
-
-  const [paymentInfo, setPaymentInfo] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    cardholderName: "",
   })
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -69,7 +61,6 @@ export default function CheckoutPage() {
       const script = document.createElement("script")
       script.src = "https://checkout.razorpay.com/v1/checkout.js"
       script.onload = () => {
-        setRazorpayLoaded(true)
         resolve(true)
       }
       script.onerror = () => {
@@ -90,7 +81,6 @@ export default function CheckoutPage() {
     const loadingToast = toast.loading('Preparing payment...')
 
     try {
-      setIsLoading(true)
       setError("")
       
       // Create order on backend
@@ -134,7 +124,7 @@ export default function CheckoutPage() {
         name: "KadamKate's Snacks",
         description: "Payment for your order",
         order_id: orderData.data.id,
-        handler: async function (response: any) {
+        handler: async function (response: Record<string, string>) {
           try {
             // Verify payment on backend
             const verifyResponse = await fetch('/api/razorpay/verify-payment', {
@@ -174,7 +164,6 @@ export default function CheckoutPage() {
         },
         modal: {
           ondismiss: function() {
-            setIsLoading(false)
             setError('Payment was cancelled. You can try again.')
             toast.error('Payment was cancelled. You can try again.')
           }
@@ -197,8 +186,6 @@ export default function CheckoutPage() {
       toast.error('Failed to initialize payment. Please try again.', {
         id: loadingToast
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 

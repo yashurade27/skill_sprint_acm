@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
       LEFT JOIN addresses a ON o.address_id = a.id
     `;
 
-    let whereConditions = [];
-    let queryParams: any[] = [];
+    const whereConditions: string[] = [];
+    const queryParams: (string | number)[] = [];
     let paramCount = 0;
 
     // If not admin, only show user's own orders
@@ -74,17 +74,14 @@ export async function GET(request: NextRequest) {
 
     // Get total count for pagination
     let countQuery = `SELECT COUNT(*) as total FROM orders o`;
-    let countParams: any[] = [];
-    let countParamCount = 0;
+    const countParams: (string | number)[] = [];
 
     if (whereConditions.length > 0) {
       countQuery += ` WHERE ${whereConditions.join(" AND ")}`;
       if (!isAdmin) {
-        countParamCount++;
         countParams.push(session.user.id);
       }
       if (status) {
-        countParamCount++;
         countParams.push(status);
       }
     }

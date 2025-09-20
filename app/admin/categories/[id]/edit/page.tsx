@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter, useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -30,18 +30,7 @@ export default function EditCategoryForm() {
     description: "",
   })
 
-  useEffect(() => {
-    if (status === "loading") return
-
-    if (!session || session.user?.role !== "admin") {
-      router.push("/auth/login")
-      return
-    }
-
-    fetchCategory()
-  }, [session, status, router, categoryId])
-
-  const fetchCategory = async () => {
+  const fetchCategory = useCallback(async () => {
     try {
       const response = await fetch(`/api/categories/${categoryId}`)
       const data = await response.json()
@@ -64,7 +53,18 @@ export default function EditCategoryForm() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [categoryId, router])
+
+  useEffect(() => {
+    if (status === "loading") return
+
+    if (!session || session.user?.role !== "admin") {
+      router.push("/auth/login")
+      return
+    }
+
+    fetchCategory()
+  }, [session, status, router, fetchCategory])
 
   const generateSlug = (name: string) => {
     return name

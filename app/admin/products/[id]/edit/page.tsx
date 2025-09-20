@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter, useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -49,18 +49,6 @@ export default function EditProductForm() {
     is_featured: false,
   })
 
-  useEffect(() => {
-    if (status === "loading") return
-
-    if (!session || session.user?.role !== "admin") {
-      router.push("/auth/login")
-      return
-    }
-
-    fetchCategories()
-    fetchProduct()
-  }, [session, status, router, productId])
-
   const fetchCategories = async () => {
     try {
       const response = await fetch("/api/categories")
@@ -73,7 +61,7 @@ export default function EditProductForm() {
     }
   }
 
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const response = await fetch(`/api/products/${productId}`)
       const data = await response.json()
@@ -101,7 +89,19 @@ export default function EditProductForm() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [productId, router])
+
+  useEffect(() => {
+    if (status === "loading") return
+
+    if (!session || session.user?.role !== "admin") {
+      router.push("/auth/login")
+      return
+    }
+
+    fetchCategories()
+    fetchProduct()
+  }, [session, status, router, fetchProduct])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

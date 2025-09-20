@@ -1,11 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter, useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import ImageUpload from "@/components/admin/ImageUpload"
 import Link from "next/link"
 import toast from "react-hot-toast"
@@ -51,35 +50,7 @@ export default function ProductForm() {
     is_featured: false,
   })
 
-  useEffect(() => {
-    if (status === "loading") return
-
-    if (!session || session.user?.role !== "admin") {
-      router.push("/auth/login")
-      return
-    }
-
-    fetchCategories()
-    if (isEdit) {
-      fetchProduct()
-    } else {
-      setLoading(false)
-    }
-  }, [session, status, router, isEdit, productId])
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch("/api/categories")
-      const data = await response.json()
-      if (data.success) {
-        setCategories(data.data.categories)
-      }
-    } catch (error) {
-      console.error("Failed to fetch categories:", error)
-    }
-  }
-
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const response = await fetch(`/api/products/${productId}`)
       const data = await response.json()
@@ -107,7 +78,39 @@ export default function ProductForm() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [productId, router])
+
+  // Fetch categories from API
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await fetch("/api/categories")
+      const data = await response.json()
+      if (data.success) {
+        setCategories(data.data.categories || [])
+      } else {
+        toast.error("Failed to load categories")
+      }
+    } catch (error) {
+      console.error("Failed to fetch categories:", error)
+      toast.error("Failed to load categories")
+    }
+  }, [])
+
+  useEffect(() => {
+    if (status === "loading") return
+
+    if (!session || session.user?.role !== "admin") {
+      router.push("/auth/login")
+      return
+    }
+
+    fetchCategories()
+    if (isEdit) {
+      fetchProduct()
+    } else {
+      setLoading(false)
+    }
+  }, [session, status, router, isEdit, fetchProduct, fetchCategories])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -171,15 +174,6 @@ export default function ProductForm() {
     } finally {
       setSubmitting(false)
     }
-  }
-
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .trim()
   }
 
   if (status === "loading" || loading) {

@@ -112,7 +112,7 @@ export async function updateCategory(formData: FormData) {
 
       // Add slug to update data if name was changed but slug wasn't provided
       if (category.name && !category.slug) {
-        (category as any).slug = newSlug;
+        (category as UpdateCategoryInput & { slug: string }).slug = newSlug;
       }
     }
 

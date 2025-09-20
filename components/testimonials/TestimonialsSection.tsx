@@ -201,13 +201,27 @@ export default function TestimonialsSection() {
   )
 }
 
-function TestimonialCard({ testimonial }: { testimonial: any }) {
+interface Testimonial {
+  type: string;
+  image?: string;
+  alt?: string;
+  content?: string;
+  author?: string;
+  rating?: number;
+  bgColor?: string;
+  textColor?: string;
+  starColor?: string;
+  stars?: number;
+  text?: string;
+}
+
+function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   if (testimonial.type === "image") {
     return (
       <div className="flex-shrink-0 w-64 h-80 mx-3">
         <Image
-          src={testimonial.image}
-          alt={testimonial.alt}
+          src={testimonial.image || ''}
+          alt={testimonial.alt || 'Testimonial image'}
           width={256}
           height={320}
           className="w-full h-full object-cover rounded-lg"
@@ -223,7 +237,7 @@ function TestimonialCard({ testimonial }: { testimonial: any }) {
           {Array.from({ length: 5 }, (_, i) => (
             <Star
               key={i}
-              className={`w-5 h-5 ${i < testimonial.stars ? `${testimonial.starColor} fill-current` : "text-gray-300"}`}
+              className={`w-5 h-5 ${i < (testimonial.stars || 0) ? `${testimonial.starColor || 'text-yellow-400'} fill-current` : "text-gray-300"}`}
             />
           ))}
         </div>

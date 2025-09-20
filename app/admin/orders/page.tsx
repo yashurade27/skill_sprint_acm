@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingCart, Search, Filter, Eye, Package } from "lucide-react"
+import { ShoppingCart, Search, Filter, Eye } from "lucide-react"
 import Link from "next/link"
 
 interface OrderItem {
@@ -45,18 +45,7 @@ export default function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
 
-  useEffect(() => {
-    if (status === "loading") return
-
-    if (!session || session.user?.role !== "admin") {
-      router.push("/auth/login")
-      return
-    }
-
-    fetchOrders()
-  }, [session, status, router])
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true)
       const url = new URL("/api/orders", window.location.origin)
@@ -82,7 +71,18 @@ export default function AdminOrders() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchTerm, statusFilter])
+
+  useEffect(() => {
+    if (status === "loading") return
+
+    if (!session || session.user?.role !== "admin") {
+      router.push("/auth/login")
+      return
+    }
+
+    fetchOrders()
+  }, [session, status, router, fetchOrders])
 
   const handleSearch = () => {
     fetchOrders()

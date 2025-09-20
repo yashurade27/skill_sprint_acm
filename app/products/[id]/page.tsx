@@ -8,8 +8,7 @@ import Footer from "@/components/layout/Footer"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Star, ShoppingCart, Heart, Share2, Minus, Plus, ArrowLeft, Truck, Shield, RotateCcw, Loader2 } from "lucide-react"
+import { ShoppingCart, Heart, Share2, Minus, Plus, ArrowLeft, Truck, Shield, Loader2 } from "lucide-react"
 import { useStore } from "@/lib/store"
 
 interface Product {
