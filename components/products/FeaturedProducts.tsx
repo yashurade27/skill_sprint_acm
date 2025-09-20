@@ -89,9 +89,6 @@ export default function FeaturedProducts() {
               <Button variant="ghost" className="text-purple-600 border-b-2 border-purple-600 rounded-none px-6 py-2">
                 FEATURED PRODUCTS
               </Button>
-              <Button variant="ghost" className="text-gray-500 hover:text-purple-600 rounded-none px-6 py-2">
-                ALL PRODUCTS
-              </Button>
             </div>
           </div>
           <h2 className="text-4xl md:text-5xl font-serif text-gray-900 mb-4">
@@ -176,6 +173,7 @@ export default function FeaturedProducts() {
           <Button 
             size="lg" 
             className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-3 rounded-full font-semibold"
+            onClick={() => window.location.href = '/products'}
           >
             View All Products
           </Button>

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { createCategorySchema, type CreateCategoryInput } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -59,6 +62,70 @@ export async function GET(request: NextRequest) {
     console.error("Get categories error:", error);
     return NextResponse.json(
       { error: "Failed to fetch categories" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Check authentication and admin role
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== "admin") {
+      return NextResponse.json(
+        { error: "Unauthorized. Admin access required." },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    
+    // Validate input
+    const parsed = createCategorySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid input", details: parsed.error.issues },
+        { status: 400 }
+      );
+    }
+
+    const categoryData: CreateCategoryInput = parsed.data;
+
+    // Check if slug already exists
+    const slugCheck = await query(
+      "SELECT id FROM categories WHERE slug = $1",
+      [categoryData.slug]
+    );
+
+    if (slugCheck.rows.length > 0) {
+      return NextResponse.json(
+        { error: "Category with this slug already exists" },
+        { status: 400 }
+      );
+    }
+
+    // Insert the category
+    const result = await query(
+      `INSERT INTO categories (name, slug, description) 
+       VALUES ($1, $2, $3)
+       RETURNING id, name, slug, description, created_at`,
+      [categoryData.name, categoryData.slug, categoryData.description || null]
+    );
+
+    const newCategory = result.rows[0];
+
+    return NextResponse.json({
+      success: true,
+      message: "Category created successfully",
+      data: {
+        category: newCategory
+      }
+    }, { status: 201 });
+
+  } catch (error) {
+    console.error("Create category error:", error);
+    return NextResponse.json(
+      { error: "Failed to create category" },
       { status: 500 }
     );
   }

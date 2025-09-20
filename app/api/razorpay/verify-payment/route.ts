@@ -35,13 +35,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create shipping address first if provided
+    let addressId = null;
+    if (shipping_address) {
+      // Update user's name if provided and different
+      if (shipping_address.firstName || shipping_address.lastName) {
+        await query(
+          `UPDATE users SET first_name = $1, last_name = $2 WHERE id = $3`,
+          [
+            shipping_address.firstName || null,
+            shipping_address.lastName || null,
+            session.user.id
+          ]
+        );
+      }
+
+      const addressResult = await query(
+        `INSERT INTO addresses (user_id, line1, line2, city, state, postal_code, phone)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING id`,
+        [
+          session.user.id,
+          shipping_address.address,
+          null, // line2 for apartment/suite
+          shipping_address.city,
+          shipping_address.state,
+          shipping_address.pincode,
+          shipping_address.phone
+        ]
+      );
+      addressId = addressResult.rows[0].id;
+    }
+
     // Create order in database
     const orderResult = await query(
-      `INSERT INTO orders (user_id, total_cents, status, payment_status, payment_method, razorpay_order_id, razorpay_payment_id, placed_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+      `INSERT INTO orders (user_id, address_id, total_cents, status, payment_status, payment_method, razorpay_order_id, razorpay_payment_id, placed_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
        RETURNING id`,
       [
         session.user.id,
+        addressId,
         total_cents,
         'confirmed',
         'paid',
@@ -59,22 +92,6 @@ export async function POST(request: NextRequest) {
         `INSERT INTO order_items (order_id, product_id, qty, unit_price_cents)
          VALUES ($1, $2, $3, $4)`,
         [orderId, item.product_id, item.quantity, item.price_cents]
-      );
-    }
-
-    // Create shipping address if provided
-    if (shipping_address) {
-      await query(
-        `INSERT INTO addresses (user_id, line1, city, state, postal_code, phone)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          session.user.id,
-          `${shipping_address.firstName} ${shipping_address.lastName}, ${shipping_address.address}`,
-          shipping_address.city,
-          shipping_address.state,
-          shipping_address.pincode,
-          shipping_address.phone
-        ]
       );
     }
 

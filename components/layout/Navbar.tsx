@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useSession, signOut } from "next-auth/react"
+import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart, Menu, X, User, LogOut, ShoppingBasket } from "lucide-react"
@@ -11,8 +12,10 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const cartCount = useStore((state) => state.cartCount)
+  const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,7 +23,7 @@ export default function Navbar() {
       setIsScrolled(scrollTop > 50)
     }
 
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = () => {
       if (showUserMenu) {
         setShowUserMenu(false)
       }
@@ -36,6 +39,13 @@ export default function Navbar() {
   }, [showUserMenu])
 
   const scrollToSection = (id: string) => {
+    // If we're not on the home page, navigate to home first
+    if (pathname !== '/') {
+      router.push(`/#${id}`)
+      return
+    }
+    
+    // If we're already on home page, scroll to section
     const element = document.getElementById(id)
     if (element) {
       element.scrollIntoView({ behavior: "smooth" })
@@ -52,7 +62,7 @@ export default function Navbar() {
       >
         {!isScrolled && (
           <div className="bg-orange-200/90 backdrop-blur-sm text-center py-2 text-sm text-orange-800">
-            Welcome to our authentic Indian snacks! FREE shipping on orders above ₹1000.
+            Welcome to our authentic Indian snacks! FREE shipping on orders above ₹500.
           </div>
         )}
 
@@ -67,7 +77,7 @@ export default function Navbar() {
                     isScrolled ? "text-gray-800" : "text-white drop-shadow-lg"
                   }`}
                 >
-                  KadamKate's Snacks
+                  KadamKate&apos;s Snacks
                 </span>
               </Link>
             </div>

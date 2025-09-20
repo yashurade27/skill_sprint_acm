@@ -8,8 +8,7 @@ import Footer from "@/components/layout/Footer"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Star, ShoppingCart, Heart, Share2, Minus, Plus, ArrowLeft, Truck, Shield, RotateCcw, Loader2 } from "lucide-react"
+import { ShoppingCart, Heart, Share2, Minus, Plus, ArrowLeft, Truck, Shield, Loader2 } from "lucide-react"
 import { useStore } from "@/lib/store"
 
 interface Product {
@@ -20,6 +19,7 @@ interface Product {
   inventory: number
   category_id: number | null
   image_url: string | null
+  images: string[]
   is_active: boolean
   created_at: string
   category_name: string | null
@@ -81,12 +81,17 @@ export default function ProductDetailsPage() {
   const handleAddToCart = () => {
     if (!product) return
     
+    // Use the first image from the images array, fallback to image_url, then placeholder
+    const productImage = (product.images && product.images.length > 0) 
+      ? product.images[0] 
+      : product.image_url || "/placeholder.svg"
+    
     addToCart({
       id: product.id,
       name: product.name,
       description: product.description || "",
       price: product.price,
-      image: product.image_url || "/placeholder.svg",
+      image: productImage,
       category: product.category_name || "Uncategorized",
       isActive: product.is_active,
     })
@@ -151,7 +156,19 @@ export default function ProductDetailsPage() {
   }
 
   const isInStock = product.inventory > 0
-  const images = product.image_url ? [product.image_url] : ["/placeholder.svg"]
+  
+  // Use images array first, fallback to image_url, then placeholder
+  const getProductImages = () => {
+    if (product.images && product.images.length > 0) {
+      return product.images
+    } else if (product.image_url) {
+      return [product.image_url]
+    } else {
+      return ["/placeholder.svg"]
+    }
+  }
+  
+  const images = getProductImages()
 
   return (
     <div className="min-h-screen w-full relative">

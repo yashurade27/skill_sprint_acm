@@ -25,7 +25,7 @@ export default function VisitUs() {
                 <div className="flex items-start justify-center space-x-3 text-lg text-gray-600">
                   <MapPin className="w-6 h-6 text-orange-500 mt-1 flex-shrink-0" />
                   <div>
-                    <p>Nigdi, Krushnagar, Maharashtra, Pune</p>
+                    <p>Krushnagar, Nigdi, Maharashtra, Pune</p>
                   </div>
                 </div>
               </div>

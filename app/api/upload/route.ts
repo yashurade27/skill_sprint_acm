@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     // Check if user is authenticated and is admin
     const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    if (!session?.user || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -51,10 +51,11 @@ export async function POST(request: NextRequest) {
       ).end(buffer)
     })
 
+    const uploadResult = result as { secure_url: string; public_id: string };
     return NextResponse.json({
       success: true,
-      url: (result as any).secure_url,
-      public_id: (result as any).public_id
+      url: uploadResult.secure_url,
+      public_id: uploadResult.public_id
     })
 
   } catch (error) {

@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { X, Upload, Image as ImageIcon } from 'lucide-react'
 import Image from 'next/image'
+import toast from 'react-hot-toast'
 
 interface ImageUploadProps {
   value: string[]
@@ -18,7 +19,6 @@ export default function ImageUpload({
   maxImages = 5,
   className = ""
 }: ImageUploadProps) {
-  const [uploading, setUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -26,11 +26,11 @@ export default function ImageUpload({
     if (!files || files.length === 0) return
     
     if (value.length + files.length > maxImages) {
-      alert(`Maximum ${maxImages} images allowed`)
+      toast.error(`Maximum ${maxImages} images allowed`)
       return
     }
 
-    setUploading(true)
+    const loadingToast = toast.loading(`Uploading ${files.length} image(s)...`)
 
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
@@ -53,15 +53,20 @@ export default function ImageUpload({
 
       const urls = await Promise.all(uploadPromises)
       onChange([...value, ...urls])
+      toast.success(`${files.length} image(s) uploaded successfully!`, {
+        id: loadingToast
+      })
     } catch (error) {
       console.error('Upload error:', error)
-      alert(`Upload failed: ${error instanceof Error ? error.message : 'Please try again.'}`)
-    } finally {
-      setUploading(false)
+      toast.error(`Upload failed: ${error instanceof Error ? error.message : 'Please try again.'}`, {
+        id: loadingToast
+      })
     }
   }
 
   const removeImage = async (index: number, url: string) => {
+    const loadingToast = toast.loading('Deleting image...')
+    
     try {
       // Extract public_id from Cloudinary URL
       const urlParts = url.split('/')
@@ -78,9 +83,14 @@ export default function ImageUpload({
       // Remove from local state
       const newUrls = value.filter((_, i) => i !== index)
       onChange(newUrls)
+      toast.success('Image deleted successfully!', {
+        id: loadingToast
+      })
     } catch (error) {
       console.error('Delete error:', error)
-      alert('Failed to delete image. Please try again.')
+      toast.error('Failed to delete image. Please try again.', {
+        id: loadingToast
+      })
     }
   }
 
@@ -150,10 +160,10 @@ export default function ImageUpload({
             variant="outline"
             className="mt-4"
             onClick={() => fileInputRef.current?.click()}
-            disabled={uploading || value.length >= maxImages}
+            disabled={value.length >= maxImages}
           >
             <Upload className="h-4 w-4 mr-2" />
-            {uploading ? 'Uploading...' : 'Choose Files'}
+            Choose Files
           </Button>
         </div>
       </div>
@@ -184,12 +194,7 @@ export default function ImageUpload({
         </div>
       )}
 
-      {/* Upload Status */}
-      {uploading && (
-        <div className="text-center text-sm text-gray-600">
-          Uploading images...
-        </div>
-      )}
+
     </div>
   )
 }

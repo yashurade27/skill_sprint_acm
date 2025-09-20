@@ -61,7 +61,7 @@ export async function updateCartItem(formData: FormData) {
     if (!parsed.success) {
       throw new Error("Invalid input");
     }
-    const { user_id, product_id, quantity }: UpdateCartItemInput = parsed.data;
+    const { product_id, quantity }: UpdateCartItemInput = parsed.data;
     // Ensure the cart item belongs to the user
     const existing = await query(
       "SELECT id FROM cart_items WHERE user_id = $1 AND product_id = $2",

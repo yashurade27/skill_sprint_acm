@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Navbar from "@/components/layout/Navbar"
@@ -82,7 +82,7 @@ export default function ProductsPage() {
   const itemsPerPage = 6
 
   // Fetch products from API
-  const fetchProducts = async (params: Record<string, string> = {}) => {
+  const fetchProducts = useCallback(async (params: Record<string, string> = {}) => {
     try {
       setLoading(true)
       const searchParams = new URLSearchParams({
@@ -103,7 +103,7 @@ export default function ProductsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentPage, itemsPerPage])
 
   // Fetch categories from API
   const fetchCategories = async () => {
@@ -123,7 +123,7 @@ export default function ProductsPage() {
   useEffect(() => {
     fetchCategories()
     fetchProducts()
-  }, [])
+  }, [fetchProducts])
 
   // Refetch products when filters change
   useEffect(() => {
@@ -143,7 +143,7 @@ export default function ProductsPage() {
     
     setCurrentPage(1) // Reset to first page when filters change
     fetchProducts(params)
-  }, [searchQuery, selectedCategory, sortBy])
+  }, [searchQuery, selectedCategory, sortBy, fetchProducts])
 
   // Refetch products when page changes
   useEffect(() => {
@@ -162,7 +162,7 @@ export default function ProductsPage() {
     }
     
     fetchProducts(params)
-  }, [currentPage])
+  }, [currentPage, fetchProducts, searchQuery, selectedCategory, sortBy])
 
   // Sort products on the client side for better UX
   const sortedProducts = useMemo(() => {

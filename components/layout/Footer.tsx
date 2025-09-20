@@ -1,7 +1,7 @@
 
 "use client"
 
-import { MapPin, Phone, Mail, Heart } from "lucide-react"
+import { MapPin, Phone, Heart } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -14,7 +14,7 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center justify-center md:justify-start space-x-2">
                 <MapPin className="w-4 h-4 text-orange-600" />
-                <span className="text-sm text-gray-700">Nigdi, Krushnagar, Maharashtra, Pune</span>
+                <span className="text-sm text-gray-700"> Krushnagar, Nigdi, Maharashtra, Pune</span>
               </div>
               <div className="flex items-center justify-center md:justify-start space-x-2">
                 <Phone className="w-4 h-4 text-orange-600" />
@@ -51,7 +51,7 @@ export default function Footer() {
         <div className="mt-8 pt-8 border-t border-orange-400/30">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-sm text-gray-700">
-              © 2025 KadamKate's Snacks. All rights reserved.
+                          © {new Date().getFullYear()} KadamKate&apos;s Snacks. All rights reserved.
             </div>
             <div className="text-sm text-gray-700">
               Serving authentic flavors since 10+ years

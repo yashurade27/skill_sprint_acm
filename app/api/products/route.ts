@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { createProductSchema, type CreateProductInput } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
     `;
 
     const whereConditions = [];
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramCount = 0;
 
     // For non-admin users, only show active products
@@ -103,7 +104,8 @@ export async function GET(request: NextRequest) {
     // Format prices from cents to decimal
     const formattedProducts = result.rows.map(product => ({
       ...product,
-      price: parseFloat((product.price_cents / 100).toFixed(2))
+      price: parseFloat((product.price_cents / 100).toFixed(2)),
+      images: product.images || []
     }));
 
     return NextResponse.json({
@@ -125,6 +127,86 @@ export async function GET(request: NextRequest) {
     console.error("Fetch products error:", error);
     return NextResponse.json(
       { error: "Failed to fetch products" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Check authentication and admin role
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== "admin") {
+      return NextResponse.json(
+        { error: "Unauthorized. Admin access required." },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    
+    // Validate input
+    const parsed = createProductSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid input", details: parsed.error.issues },
+        { status: 400 }
+      );
+    }
+
+    const productData: CreateProductInput = parsed.data;
+
+    // Check if category exists
+    const categoryCheck = await query(
+      "SELECT id FROM categories WHERE id = $1",
+      [productData.category_id]
+    );
+
+    if (categoryCheck.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Category not found" },
+        { status: 400 }
+      );
+    }
+
+    // Insert the product
+    const result = await query(
+      `INSERT INTO products (
+        name, description, price_cents, inventory, category_id, 
+        image_url, images, is_active, is_featured
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9)
+      RETURNING id, name, description, price_cents, inventory, category_id, 
+                image_url, images, is_active, is_featured, created_at`,
+      [
+        productData.name,
+        productData.description || null,
+        productData.price_cents,
+        productData.inventory,
+        productData.category_id,
+        productData.image_url || null,
+        JSON.stringify(productData.images),
+        productData.is_active,
+        productData.is_featured
+      ]
+    );
+
+    const newProduct = result.rows[0];
+
+    return NextResponse.json({
+      success: true,
+      message: "Product created successfully",
+      data: {
+        product: {
+          ...newProduct,
+          price: parseFloat((newProduct.price_cents / 100).toFixed(2))
+        }
+      }
+    }, { status: 201 });
+
+  } catch (error) {
+    console.error("Create product error:", error);
+    return NextResponse.json(
+      { error: "Failed to create product" },
       { status: 500 }
     );
   }

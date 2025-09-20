@@ -9,7 +9,13 @@ declare module "next-auth" {
   interface Session {
     user: ExtendedUser;
   }
-  interface User extends ExtendedUser {}
+  interface User extends ExtendedUser {
+    id: string;
+    email: string;
+    role?: string;
+    phone?: string | null;
+    email_verified?: boolean;
+  }
 }
 
 declare module "next-auth/jwt" {
