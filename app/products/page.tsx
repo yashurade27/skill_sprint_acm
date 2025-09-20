@@ -77,17 +77,18 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalProducts, setTotalProducts] = useState(0)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const { addToCart } = useStore()
 
   const itemsPerPage = 6
 
   // Fetch products from API
-  const fetchProducts = useCallback(async (params: Record<string, string> = {}) => {
+  const fetchProducts = useCallback(async (page: number = 1, params: Record<string, string> = {}) => {
     try {
       setLoading(true)
       const searchParams = new URLSearchParams({
         limit: itemsPerPage.toString(),
-        page: currentPage.toString(),
+        page: page.toString(),
         ...params
       })
       const response = await fetch(`/api/products?${searchParams}`)
@@ -103,7 +104,7 @@ export default function ProductsPage() {
     } finally {
       setLoading(false)
     }
-  }, [currentPage, itemsPerPage])
+  }, [itemsPerPage])
 
   // Fetch categories from API
   const fetchCategories = async () => {
@@ -122,7 +123,9 @@ export default function ProductsPage() {
   // Initial data fetch
   useEffect(() => {
     fetchCategories()
-    fetchProducts()
+    fetchProducts(1).then(() => {
+      setIsInitialLoad(false) // Mark initial load as complete
+    })
   }, [fetchProducts])
 
   // Refetch products when filters change
@@ -142,27 +145,31 @@ export default function ProductsPage() {
     }
     
     setCurrentPage(1) // Reset to first page when filters change
-    fetchProducts(params)
+    fetchProducts(1, params).then(() => {
+      setIsInitialLoad(false) // Ensure flag is set after filter changes too
+    })
   }, [searchQuery, selectedCategory, sortBy, fetchProducts])
 
-  // Refetch products when page changes
+  // Refetch products when page changes (but not on initial load)
   useEffect(() => {
-    const params: Record<string, string> = {}
-    
-    if (searchQuery) {
-      params.search = searchQuery
+    if (!isInitialLoad) { // Skip the first render to avoid duplicate calls
+      const params: Record<string, string> = {}
+      
+      if (searchQuery) {
+        params.search = searchQuery
+      }
+      
+      if (selectedCategory !== "all") {
+        params.category = selectedCategory
+      }
+      
+      if (sortBy === "featured") {
+        params.is_featured = "true"
+      }
+      
+      fetchProducts(currentPage, params)
     }
-    
-    if (selectedCategory !== "all") {
-      params.category = selectedCategory
-    }
-    
-    if (sortBy === "featured") {
-      params.is_featured = "true"
-    }
-    
-    fetchProducts(params)
-  }, [currentPage, fetchProducts, searchQuery, selectedCategory, sortBy])
+  }, [currentPage, fetchProducts, searchQuery, selectedCategory, sortBy, isInitialLoad])
 
   // Sort products on the client side for better UX
   const sortedProducts = useMemo(() => {
