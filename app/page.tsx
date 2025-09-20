@@ -5,6 +5,8 @@ import FeaturedProducts from "@/components/products/FeaturedProducts";
 import SpecialCollections from "@/components/collections/SpecialCollections";
 import OurStory from "@/components/story/OurStory";
 import TestimonialsSection from "@/components/testimonials/TestimonialsSection";
+import VisitUs from "@/components/info/VisitUs";
+import Footer from "@/components/layout/Footer";
 
 export default function Home() {
   return (
@@ -15,6 +17,8 @@ export default function Home() {
       <SpecialCollections />
       <OurStory />
       <TestimonialsSection />
+      <VisitUs />
+      <Footer />
     </main>
   );
 }
