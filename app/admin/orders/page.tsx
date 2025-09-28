@@ -20,21 +20,29 @@ interface OrderItem {
 interface Order {
   id: number
   user_id: number
-  customer_email: string
+  user_email: string
+  user_name: string
   total_cents: number
   status: string
   payment_status: string
   payment_method: string
   placed_at: string
-  shipping_address: {
-    line1: string
-    line2?: string
-    city: string
-    state: string
-    postal_code: string
-    phone?: string
-  }
+  line1: string
+  line2?: string
+  city: string
+  state: string
+  postal_code: string
+  address_phone?: string
   items: OrderItem[]
+}
+
+interface PaginationData {
+  page: number
+  limit: number
+  totalOrders: number
+  totalPages: number
+  hasNext: boolean
+  hasPrev: boolean
 }
 
 export default function AdminOrders() {
@@ -44,8 +52,10 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pagination, setPagination] = useState<PaginationData | null>(null)
 
-  const fetchOrders = useCallback(async () => {
+  const fetchOrders = useCallback(async (page: number = 1) => {
     try {
       setLoading(true)
       const url = new URL("/api/orders", window.location.origin)
@@ -58,13 +68,17 @@ export default function AdminOrders() {
         url.searchParams.set("status", statusFilter)
       }
 
-      url.searchParams.set("limit", "50") // Get more orders for admin
+      url.searchParams.set("admin", "true") // Enable admin view to see all orders
+      url.searchParams.set("limit", "5") 
+      url.searchParams.set("page", page.toString())
 
       const response = await fetch(url.toString())
       const data = await response.json()
 
       if (data.success) {
         setOrders(data.data.orders)
+        setPagination(data.data.pagination)
+        setCurrentPage(page)
       }
     } catch (error) {
       console.error("Failed to fetch orders:", error)
@@ -85,7 +99,11 @@ export default function AdminOrders() {
   }, [session, status, router, fetchOrders])
 
   const handleSearch = () => {
-    fetchOrders()
+    fetchOrders(1) // Reset to first page when searching
+  }
+
+  const handlePageChange = (page: number) => {
+    fetchOrders(page)
   }
 
   const updateOrderStatus = async (orderId: number, newStatus: string) => {
@@ -205,7 +223,7 @@ export default function AdminOrders() {
                   <option value="delivered">Delivered</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
-                <Button onClick={fetchOrders} variant="outline">
+                <Button onClick={handleSearch} variant="outline">
                   <Filter className="h-4 w-4 mr-2" />
                   Apply Filters
                 </Button>
@@ -243,7 +261,7 @@ export default function AdminOrders() {
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600">
                         <div>
-                          <strong>Customer:</strong> {order.customer_email}
+                          <strong>Customer:</strong> {order.user_name ? `${order.user_name} (${order.user_email})` : order.user_email}
                         </div>
                         <div>
                           <strong>Total:</strong> ₹{order.total_cents ? (order.total_cents / 100).toFixed(2) : '0.00'}
@@ -259,8 +277,8 @@ export default function AdminOrders() {
                         </div>
                         <div>
                           <strong>Address:</strong> 
-                          {order.shipping_address ? 
-                            `${order.shipping_address.city}, ${order.shipping_address.state}` : 
+                          {order.line1 ? 
+                            `${order.line1}${order.line2 ? ', ' + order.line2 : ''}, ${order.city}, ${order.state}` : 
                             "N/A"
                           }
                         </div>
@@ -310,6 +328,61 @@ export default function AdminOrders() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6">
+            <div className="text-sm text-gray-700">
+              Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.totalOrders)} of {pagination.totalOrders} orders
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={!pagination.hasPrev}
+              >
+                Previous
+              </Button>
+              
+              {/* Page numbers */}
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    const current = pagination.page
+                    // Show first page, last page, current page, and pages around current
+                    return page === 1 || 
+                           page === pagination.totalPages || 
+                           (page >= current - 1 && page <= current + 1)
+                  })
+                  .map((page, index, array) => (
+                    <div key={page} className="flex items-center">
+                      {index > 0 && array[index - 1] !== page - 1 && (
+                        <span className="px-2 text-gray-400">...</span>
+                      )}
+                      <Button
+                        variant={page === pagination.page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page)}
+                        className="min-w-[40px]"
+                      >
+                        {page}
+                      </Button>
+                    </div>
+                  ))}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={!pagination.hasNext}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         )}
       </div>

@@ -61,12 +61,13 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.phone = user.phone;
         token.email_verified = user.email_verified;
+        token.id = user.id; // Store user ID in token
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.sub;
+        session.user.id = token.id as string; // Use token.id instead of token.sub
         session.user.role = token.role;
         session.user.phone = token.phone;
         session.user.email_verified = token.email_verified;

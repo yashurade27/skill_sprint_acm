@@ -50,8 +50,8 @@ export default function AdminDashboard() {
       const categoriesRes = await fetch("/api/categories")
       const categoriesData = await categoriesRes.json()
       
-      // Fetch orders count and recent orders
-      const ordersRes = await fetch("/api/orders?limit=5")
+      // Fetch orders count and recent orders (admin view)
+      const ordersRes = await fetch("/api/orders?admin=true&limit=5")
       const ordersData = await ordersRes.json()
 
       setStats({
