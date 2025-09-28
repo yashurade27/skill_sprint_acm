@@ -52,7 +52,6 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [currentPage, setCurrentPage] = useState(1)
   const [pagination, setPagination] = useState<PaginationData | null>(null)
 
   const fetchOrders = useCallback(async (page: number = 1) => {
@@ -78,7 +77,6 @@ export default function AdminOrders() {
       if (data.success) {
         setOrders(data.data.orders)
         setPagination(data.data.pagination)
-        setCurrentPage(page)
       }
     } catch (error) {
       console.error("Failed to fetch orders:", error)

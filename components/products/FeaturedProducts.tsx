@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import { useStore } from "@/lib/store"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 
 interface Product {
   id: number;
@@ -54,11 +54,7 @@ export default function FeaturedProducts() {
     }
   ];
 
-  useEffect(() => {
-    fetchFeaturedProducts()
-  }, [])
-
-  const fetchFeaturedProducts = async () => {
+  const fetchFeaturedProducts = useCallback(async () => {
     try {
       setError(null)
       
@@ -97,7 +93,11 @@ export default function FeaturedProducts() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchFeaturedProducts()
+  }, [fetchFeaturedProducts])
 
   const handleAddToCart = (product: Product) => {
     const imageUrl = product.images?.[0] || product.image_url || "/placeholder.svg";
