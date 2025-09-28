@@ -240,7 +240,10 @@ export default function OrdersPage() {
                 </Button>
               </div>
             ) : (
-              orders.map((order) => (
+              orders.map((order, index) => {
+                const sequentialOrderNumber = (page - 1) * 10 + index + 1
+                
+                return (
                 <Card key={order.id} className="bg-white/90 backdrop-blur-sm border-white/20">
                   <CardHeader className="pb-4">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -248,7 +251,7 @@ export default function OrdersPage() {
                         <div className="flex items-center gap-2">
                           <Package className="h-5 w-5 text-gray-600" />
                           <div>
-                            <CardTitle className="text-lg">Order #{order.id}</CardTitle>
+                            <CardTitle className="text-lg">Order #{sequentialOrderNumber}</CardTitle>
                             <p className="text-sm text-gray-600">
                               Placed on {formatDate(order.placed_at)}
                             </p>
@@ -379,7 +382,8 @@ export default function OrdersPage() {
                     )}
                   </CardContent>
                 </Card>
-              ))
+                )
+              })
             )}
           </div>
 

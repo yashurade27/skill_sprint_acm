@@ -182,6 +182,12 @@ export async function PUT(
       updateFields.push(`images = $${paramCount}::jsonb`);
       updateValues.push(JSON.stringify(updateData.images));
       console.log("Adding images to update:", updateData.images, "Type:", typeof updateData.images);
+        // Also update image_url to first image if images array is not empty
+        if (Array.isArray(updateData.images) && updateData.images.length > 0) {
+          paramCount++;
+          updateFields.push(`image_url = $${paramCount}`);
+          updateValues.push(updateData.images[0]);
+        }
     }
 
     if (updateData.is_active !== undefined) {

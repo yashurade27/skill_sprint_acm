@@ -13,6 +13,7 @@ interface Product {
   description: string;
   price_cents: number;
   image_url: string;
+  images?: string[]; // Add images array
   category_name: string;
   is_featured: boolean;
   is_active: boolean;
@@ -23,6 +24,35 @@ export default function FeaturedProducts() {
   const addToCart = useStore((state) => state.addToCart)
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fallback mock data for when database is unavailable
+  const mockProducts: Product[] = [
+    {
+      id: 1,
+      name: "Traditional Gulab Jamun",
+      description: "Soft, sweet, and melts in your mouth - made with authentic recipe",
+      price_cents: 25000,
+      image_url: "/placeholder.svg",
+      images: ["/placeholder.svg"],
+      category_name: "Sweets",
+      is_featured: true,
+      is_active: true,
+      inventory: 15
+    },
+    {
+      id: 2,
+      name: "Special Samosa Mix",
+      description: "Crispy and flavorful samosas with traditional spice blend",
+      price_cents: 18000,
+      image_url: "/placeholder.svg", 
+      images: ["/placeholder.svg"],
+      category_name: "Snacks",
+      is_featured: true,
+      is_active: true,
+      inventory: 25
+    }
+  ];
 
   useEffect(() => {
     fetchFeaturedProducts()
@@ -30,25 +60,53 @@ export default function FeaturedProducts() {
 
   const fetchFeaturedProducts = async () => {
     try {
+      setError(null)
+      
       const response = await fetch('/api/products?is_featured=true&limit=8')
-      if (response.ok) {
-        const data = await response.json()
+      const data = await response.json()
+      
+      console.log('Featured products API response:', data) // Debug log
+      
+      if (data.success && data.data?.products && data.data.products.length > 0) {
         setProducts(data.data.products)
+      } else if (!data.success) {
+        // API failed - use fallback data in development
+        console.warn('API failed, using fallback data:', data.error)
+        setError('Database temporarily unavailable')
+        
+        if (process.env.NODE_ENV === 'development') {
+          setProducts(mockProducts)
+        } else {
+          setProducts([])
+        }
+      } else {
+        // API succeeded but no products found
+        console.log('No featured products found')
+        setProducts([])
       }
     } catch (error) {
       console.error('Failed to fetch featured products:', error)
+      setError('Failed to load products')
+      
+      // Use fallback data in development
+      if (process.env.NODE_ENV === 'development') {
+        setProducts(mockProducts)
+      } else {
+        setProducts([])
+      }
     } finally {
       setLoading(false)
     }
   }
 
   const handleAddToCart = (product: Product) => {
+    const imageUrl = product.images?.[0] || product.image_url || "/placeholder.svg";
     addToCart({
       id: product.id,
       name: product.name,
       description: product.description,
       price: product.price_cents / 100, // Convert cents to rupees
-      image: product.image_url,
+      image: imageUrl,
       category: product.category_name,
       isActive: product.is_active,
     })
@@ -100,12 +158,34 @@ export default function FeaturedProducts() {
           </p>
         </div>
 
+        {/* Error banner */}
+        {error && (
+          <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center">
+              <div className="text-yellow-600 mr-3">⚠️</div>
+              <div>
+                <p className="text-yellow-800 font-medium">Service Notice</p>
+                <p className="text-yellow-700 text-sm">
+                  {process.env.NODE_ENV === 'development' 
+                    ? 'Database connection issue - showing sample products for development'
+                    : 'Some features may be temporarily unavailable. Please try again later.'
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Products grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map((product) => (
             <Card
               key={product.id}
-              className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-orange-50"
+              className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 bg-orange-50 cursor-pointer"
+              onClick={() => {
+                // Example: navigate to product details page
+                window.location.href = `/products/${product.id}`;
+              }}
             >
               <Badge className="absolute top-3 left-3 z-10 bg-purple-600 text-white px-3 py-1 text-xs font-medium">
                 FEATURED
@@ -113,10 +193,14 @@ export default function FeaturedProducts() {
 
               <div className="relative h-64 overflow-hidden">
                 <Image
-                  src={product.image_url || "/placeholder.svg"}
+                  src={product.images?.[0] || product.image_url || "/placeholder.svg"}
                   alt={product.name}
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/placeholder.svg";
+                  }}
                 />
               </div>
 

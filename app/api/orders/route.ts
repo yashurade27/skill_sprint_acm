@@ -15,7 +15,15 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const status = searchParams.get("status");
+    const adminView = searchParams.get("admin") === "true"; // Special parameter for admin view
     const offset = (page - 1) * limit;
+
+    console.log('Orders API - User:', {
+      id: session.user.id,
+      role: session.user.role,
+      isAdmin,
+      email: session.user.email
+    });
 
     let baseQuery = `
       SELECT 
@@ -47,11 +55,11 @@ export async function GET(request: NextRequest) {
     const queryParams: (string | number)[] = [];
     let paramCount = 0;
 
-    // If not admin, only show user's own orders
-    if (!isAdmin) {
+    // Always filter by user_id unless it's an admin requesting all orders
+    if (!adminView) {
       paramCount++;
       whereConditions.push(`o.user_id = $${paramCount}`);
-      queryParams.push(session.user.id);
+      queryParams.push(parseInt(session.user.id));
     }
 
     // Filter by status if provided
@@ -78,8 +86,8 @@ export async function GET(request: NextRequest) {
 
     if (whereConditions.length > 0) {
       countQuery += ` WHERE ${whereConditions.join(" AND ")}`;
-      if (!isAdmin) {
-        countParams.push(session.user.id);
+      if (!adminView) {
+        countParams.push(parseInt(session.user.id));
       }
       if (status) {
         countParams.push(status);
